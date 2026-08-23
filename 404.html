@@ -40,8 +40,8 @@ if (window.OC.mode !== 'app') document.documentElement.className = 'oc-lock';
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%}
 body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:#DEDCD4;color:var(--ink);overflow:hidden}
-#app{position:fixed;inset:0;margin:0 auto;max-width:480px;background:var(--paper);display:flex;flex-direction:column;overflow:hidden}
-@media (min-width:520px){#app{inset:0 auto;left:50%;transform:translateX(-50%);border-left:1px solid var(--line);border-right:1px solid var(--line)}}
+#app{position:fixed;inset:0;width:100%;max-width:480px;margin:0 auto;background:var(--paper);display:flex;flex-direction:column;overflow:hidden}
+@media (min-width:520px){#app{top:0;bottom:0;left:50%;right:auto;width:480px;transform:translateX(-50%);border-left:1px solid var(--line);border-right:1px solid var(--line)}}
 .screen{display:none;flex:1;min-height:0;flex-direction:column}
 .screen.on{display:flex}
 button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
