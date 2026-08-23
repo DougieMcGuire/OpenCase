@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="referrer" content="no-referrer" />
+<meta name="theme-color" content="#FFE500" />
+<title>OpenCase</title>
+<script>
+/* Runs before anything paints. Bookmarked=1 and a bare URL -> straight to the
+   decoy. Any hash (an invite link, or #open) always loads the app. */
+window.OC_REDIRECT = "about:blank";
+(function () {
+  try {
+    if (localStorage.getItem("Bookmarked") === "1" && !location.hash) {
+      location.replace(window.OC_REDIRECT);
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pop:#FFE500;
+  --ink:#0B0B0C;
+  --dim:#8C8B86;
+  --line:#EBE8E0;
+  --them:#F2F0E9;
+  --paper:#FFFFFF;
+  --danger:#FF3B30;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:#DEDCD4;color:var(--ink);overflow:hidden}
+#app{position:fixed;inset:0;margin:0 auto;max-width:480px;background:var(--paper);display:flex;flex-direction:column;overflow:hidden}
+@media (min-width:520px){#app{inset:0 auto;left:50%;transform:translateX(-50%);border-left:1px solid var(--line);border-right:1px solid var(--line)}}
+.screen{display:none;flex:1;min-height:0;flex-direction:column}
+.screen.on{display:flex}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input{font:inherit;color:inherit;width:100%}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* ---------- gate ---------- */
+#gate{padding:0 26px;justify-content:center}
+.mark{font-weight:800;font-size:44px;letter-spacing:-.045em;line-height:1}
+.mark em{font-style:normal;background:var(--pop);padding:0 6px;border-radius:8px}
+.sub{color:var(--dim);font-size:15px;margin:10px 0 34px;max-width:32ch;line-height:1.45}
+.inp{display:block;width:100%;background:var(--them);border-radius:16px;padding:15px 17px;font-size:16px;margin-bottom:12px;border:2px solid transparent}
+.inp::placeholder{color:#A9A79F}
+.inp:focus{border-color:var(--ink);background:var(--paper);outline:none}
+.big{display:block;width:100%;background:var(--ink);color:#fff;border-radius:16px;padding:16px;font-size:16px;font-weight:700;margin-top:6px}
+.big:disabled{opacity:.45}
+.big.pop{background:var(--pop);color:var(--ink)}
+.swap{margin-top:20px;font-size:14.5px;color:var(--dim);text-align:center}
+.swap button{font-weight:700;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.err{color:var(--danger);font-size:14px;min-height:20px;margin:10px 2px 0;font-weight:500}
+
+/* ---------- lobby ---------- */
+.top{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);min-height:60px;flex:none}
+.top h2{font-size:18px;font-weight:800;letter-spacing:-.02em;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iconbtn{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;flex:none}
+.iconbtn:hover{background:var(--them)}
+.chip{font-size:11.5px;font-weight:700;padding:5px 9px;border-radius:9px;background:var(--them);color:#4A4842;display:inline-flex;align-items:center;gap:5px;flex:none;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip.live{background:var(--pop);color:var(--ink)}
+.scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.pad{padding:18px 16px 26px}
+.label{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin:0 0 10px}
+.card{border:2px solid var(--line);border-radius:20px;padding:16px;margin-bottom:14px}
+.card .words{font-weight:700;font-size:16px;line-height:1.35;word-break:break-word;letter-spacing:-.01em}
+.card .meta{color:var(--dim);font-size:13px;margin-top:4px}
+.rowb{display:flex;gap:10px;margin-top:12px}
+.rowb .big{margin-top:0}
+.mini{padding:11px 14px;border-radius:13px;background:var(--them);font-weight:700;font-size:14px;flex:none}
+.recent{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);width:100%;text-align:left}
+.recent:last-child{border-bottom:0}
+.av{width:42px;height:42px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-weight:800;font-size:15px}
+.rt{flex:1;min-width:0}
+.rn{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd{color:var(--dim);font-size:13px}
+
+/* ---------- room ---------- */
+#log{flex:1;min-height:0;overflow-y:auto;padding:16px 14px 8px;display:flex;flex-direction:column}
+.gname{font-size:12px;font-weight:700;color:var(--dim);margin:12px 0 5px 46px}
+.line{display:flex;align-items:flex-end;gap:8px;margin-bottom:3px}
+.line .av{width:30px;height:30px;font-size:12px;visibility:hidden}
+.line.first .av{visibility:visible}
+.bub{max-width:76%;padding:10px 14px;border-radius:20px;font-size:15.5px;line-height:1.38;background:var(--them);overflow-wrap:anywhere;white-space:pre-wrap}
+.line.mine{flex-direction:row-reverse}
+.line.mine .av{display:none}
+.line.mine .bub{background:var(--ink);color:#fff;border-bottom-right-radius:7px}
+.line.first:not(.mine) .bub{border-bottom-left-radius:7px}
+.line.sealed .bub{background:repeating-linear-gradient(45deg,#F7F5EE 0 6px,#F0EDE4 6px 12px);color:var(--danger);font-family:'JetBrains Mono',monospace;font-size:12px}
+.blank{margin:auto;text-align:center;color:var(--dim);font-size:14.5px;line-height:1.5;padding:0 32px}
+.blank b{color:var(--ink);display:block;font-size:17px;margin-bottom:6px}
+.bar{display:flex;align-items:flex-end;gap:9px;padding:10px 12px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);flex:none;background:var(--paper)}
+.bar .inp{margin:0;border-radius:22px;padding:12px 16px}
+.snd{width:46px;height:46px;border-radius:50%;background:var(--pop);display:grid;place-items:center;flex:none}
+.snd:disabled{background:var(--them)}
+
+/* ---------- sheet ---------- */
+.sheet{position:absolute;inset:0;background:rgba(11,11,12,.42);display:none;align-items:flex-end;z-index:20}
+.sheet.on{display:flex}
+.sheetin{background:var(--paper);width:100%;border-radius:26px 26px 0 0;padding:10px 20px calc(24px + env(safe-area-inset-bottom));max-height:88%;overflow-y:auto}
+.grab{width:38px;height:4px;border-radius:99px;background:var(--line);margin:0 auto 16px}
+.sheetin h3{font-size:19px;font-weight:800;letter-spacing:-.02em;margin:0 0 4px}
+.sheetin p{color:var(--dim);font-size:14px;line-height:1.5;margin:0 0 16px}
+.wire{background:#0B0B0C;color:#7DE8B8;border-radius:16px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;margin-bottom:16px}
+.wire i{color:#6C6A64;font-style:normal}
+.opt{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.opt:last-of-type{border-bottom:0}
+.ot{font-weight:700;font-size:15px}
+.od{color:var(--dim);font-size:13px;margin-top:2px}
+select{font:inherit;background:var(--them);border:0;border-radius:11px;padding:9px 11px;font-weight:600;font-size:14px}
+.toast{position:absolute;left:50%;bottom:88px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:14px;font-weight:600;padding:11px 18px;border-radius:99px;opacity:0;transition:opacity .16s;z-index:40;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.bmk{position:absolute;inset:0;z-index:60;background:var(--paper);display:none;
+  flex-direction:column;justify-content:center;padding:0 26px}
+.bmk.on{display:flex}
+html.bmk-lock #app>.screen{display:none!important}
+.bmk .mark{margin-bottom:10px}
+.bmk p{color:var(--dim);font-size:15px;line-height:1.5;margin:0 0 24px;max-width:32ch}
+.keys{display:inline-flex;align-items:center;gap:6px;background:var(--them);border-radius:12px;
+  padding:12px 16px;font-weight:700;font-size:15px;margin-bottom:22px;align-self:flex-start}
+.keys kbd{font-family:var(--font-mono,'JetBrains Mono',monospace);background:var(--paper);
+  border:1px solid var(--line);border-radius:7px;padding:3px 8px;font-size:14px}
+.bmk .note{font-size:13px;color:var(--dim);margin:16px 2px 0}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="bmk" id="bmk">
+    <div class="mark">Open<em>Case</em></div>
+    <p id="bmktext">Save this page before you go any further. It's the only way back in — there's no search result, no link, nothing to find it by.</p>
+    <div class="keys" id="keys"><kbd>Ctrl</kbd> + <kbd>D</kbd></div>
+    <button class="big pop" id="bmkdone">I've bookmarked it</button>
+    <button class="big" id="bmkcopy" style="background:var(--them);color:var(--ink)">Copy the link instead</button>
+    <p class="note">After this, opening the bare bookmark shows a blank page. Your invite links still open the app.</p>
+  </div>
+
+
+  <section id="gate" class="screen on">
+    <div class="mark">Open<em>Case</em></div>
+    <p class="sub" id="gatesub">Log in to open a case. Messages are sealed on this device before they leave it.</p>
+    <input class="inp" id="email" type="email" autocomplete="email" placeholder="Email" />
+    <input class="inp" id="pass" type="password" autocomplete="current-password" placeholder="Password" />
+    <input class="inp" id="handle" placeholder="Display name" maxlength="20" hidden />
+    <button class="big" id="godo">Log in</button>
+    <div class="err" id="gateerr"></div>
+    <div class="swap" id="swap"><span id="swaptext">No account? </span><button id="swapbtn">Create one</button></div>
+  </section>
+
+  <section id="lobby" class="screen">
+    <div class="top">
+      <h2>Cases</h2>
+      <span class="chip" id="who">—</span>
+      <button class="iconbtn" id="signout" aria-label="Sign out">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </button>
+    </div>
+    <div class="scroll"><div class="pad">
+      <p class="label">Start a case</p>
+      <div class="card">
+        <div class="words" id="newwords">—</div>
+        <div class="meta" id="newmeta">Six words. That's the whole key.</div>
+        <div class="rowb">
+          <button class="big pop" id="opennew">Open this case</button>
+          <button class="mini" id="reroll">Reroll</button>
+        </div>
+      </div>
+
+      <p class="label" style="margin-top:26px">Join with a key</p>
+      <input class="inp" id="joinkey" placeholder="Color.Burglar.Eight.Beaver.Orange.Kite" spellcheck="false" autocapitalize="off" />
+      <button class="big" id="joinbtn">Open case</button>
+
+      <div id="recentwrap" hidden>
+        <p class="label" style="margin-top:30px">Recent</p>
+        <div id="recents"></div>
+      </div>
+    </div></div>
+  </section>
+
+  <section id="room" class="screen">
+    <div class="top">
+      <button class="iconbtn" id="back" aria-label="Back">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <h2 id="roomname">Case</h2>
+      <button class="chip live" id="lockchip">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        Sealed
+      </button>
+    </div>
+    <div id="log"></div>
+    <div class="bar">
+      <input class="inp" id="text" placeholder="Send a message" maxlength="2000" autocomplete="off" />
+      <button class="snd" id="send" aria-label="Send" disabled>
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <div class="sheet" id="sheet">
+    <div class="sheetin">
+      <div class="grab"></div>
+      <h3>What the server sees</h3>
+      <p>The exact record Firestore holds for your next message, live as you type.</p>
+      <div class="wire" id="wire"></div>
+      <div class="opt">
+        <div><div class="ot">Case key</div><div class="od" id="sheetwords">—</div></div>
+        <button class="mini" id="copykey">Copy</button>
+      </div>
+      <div class="opt">
+        <div><div class="ot">Invite link</div><div class="od">Key rides in the fragment — browsers never send it to a server</div></div>
+        <button class="mini" id="copylink">Copy</button>
+      </div>
+      <div class="opt" id="vanityopt" hidden>
+        <div><div class="ot">Vanity link</div><div class="od">Prettier, but the key sits in the hostname where DNS and the CDN can read it</div></div>
+        <button class="mini" id="copyvanity">Copy</button>
+      </div>
+      <div class="opt">
+        <div><div class="ot">Auto-burn</div><div class="od">Cleared by whoever has the case open</div></div>
+        <select id="ttl">
+          <option value="900000">15 min</option>
+          <option value="3600000" selected>1 hour</option>
+          <option value="86400000">24 hours</option>
+          <option value="0">Never</option>
+        </select>
+      </div>
+      <div class="opt">
+        <div><div class="ot" style="color:var(--danger)">Burn the case</div><div class="od">Deletes every message for everyone</div></div>
+        <button class="mini" id="burn" style="background:var(--danger);color:#fff">Burn</button>
+      </div>
+      <button class="big" id="closesheet" style="margin-top:18px">Done</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+         updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, deleteDoc, getDocs, query, orderBy, limit,
+         onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* ========= 1 — YOUR FIREBASE PROJECT ========= */
+const FIREBASE_CONFIG = {
+  apiKey: "PASTE_API_KEY",
+  authDomain: "PASTE.firebaseapp.com",
+  projectId: "PASTE",
+  storageBucket: "PASTE.appspot.com",
+  messagingSenderId: "PASTE",
+  appId: "PASTE"
+};
+
+/* ========= 2 — VANITY DOMAIN (needs wildcard DNS: *.domain) ========= */
+const VANITY_DOMAIN = "";   // e.g. "answers.lol" — leave "" to disable
+
+/* ========= 3 — MIRRORS you deploy this file to ========= */
+const MIRRORS = ["opencase.pages.dev","opencase.netlify.app","opencase.vercel.app"];
+
+const WORDS = ("acorn amber anchor apple arrow aspen bagel bamboo banjo basil beaver bishop bison blizzard "+
+"bramble bronze bucket burglar cactus camera candle canyon cedar cherry cinder clover cobalt comet compass "+
+"copper coral cosmic cotton cricket crimson crystal dagger daisy denim diesel domino donut dolphin dragon "+
+"drifter eagle echo eight ember emerald falcon feather fennel ferret fiddle flamingo flint fossil frost "+
+"galaxy garnet gecko ginger glacier gopher granite gravel harbor hazel hollow honey hornet husky igloo "+
+"indigo inkwell iris ivory jasper jetty jigsaw jolt jungle juniper kayak kelp kernel kettle kite lantern "+
+"lasso lemon lilac locket lotus lucid magnet mango maple marble meadow mercury meteor mitten mosaic muffin "+
+"nickel ninety noodle nomad nugget nutmeg oakwood ocean onyx opal orange orbit ostrich otter outlaw oyster "+
+"paddle parrot pebble pepper pickle pigeon pilot pistol plaster pocket pollen prairie pretzel puffin puzzle "+
+"quartz quasar quill quiver rabbit radish ramen raven ribbon rocket rodeo rooster saddle saffron sable "+
+"salmon sapphire scarlet shadow shovel silver siren sonic sparrow sprout stallion stencil sugar sundial "+
+"tangle teapot thistle thunder tiger timber tinder toffee topaz tractor trumpet tulip tundra turbine "+
+"umbra urchin vandal vapor vector velvet vessel vinyl violet vulture waffle walnut walrus whisker willow "+
+"wombat xenon yarn yellow yeti yodel yonder zebra zenith zephyr zinc zipper zodiac").split(" ");
+const BITS = Math.round(Math.log2(WORDS.length) * 6);
+
+/* ---------- utils ---------- */
+const $ = id => document.getElementById(id);
+const enc = new TextEncoder(), dec = new TextDecoder();
+const b64 = b => btoa(String.fromCharCode(...new Uint8Array(b)));
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const hex = b => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('');
+const cap = w => w.charAt(0).toUpperCase() + w.slice(1);
+const AV = ['#FF5A5F','#2BB0FF','#7A5CFF','#FF9F1C','#00C49A','#FF4FD8','#0B0B0C','#E8452C'];
+function avColor(s){ let h=0; for(const c of s) h=(h*31+c.charCodeAt(0))|0; return AV[Math.abs(h)%AV.length]; }
+let tt; function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('on'),2000); }
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); }
+function avatar(name){ const d=document.createElement('div'); d.className='av'; d.style.background=avColor(name); d.textContent=(name[0]||'?').toUpperCase(); return d; }
+
+/* ---------- crypto ----------
+   One PBKDF2 pass yields 512 bits: first 256 = AES key, second 256 = case address.
+   So finding the address costs exactly as much as finding the key. */
+async function derive(w){
+  const pass = w.map(x=>x.toLowerCase()).join('.');
+  const salt = new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode('opencase.v2|'+pass)));
+  const base = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({name:'PBKDF2', salt, iterations:250000, hash:'SHA-256'}, base, 512);
+  const key = await crypto.subtle.importKey('raw', bits.slice(0,32), 'AES-GCM', false, ['encrypt','decrypt']);
+  return { key, addr: hex(bits.slice(32)).slice(0,40) };
+}
+async function seal(key,obj){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM',iv}, key, enc.encode(JSON.stringify(obj)));
+  return { c:b64(ct), i:b64(iv) };
+}
+async function unseal(key,rec){
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:unb64(rec.i)}, key, unb64(rec.c));
+  return JSON.parse(dec.decode(pt));
+}
+function rollWords(n=6){
+  const out=[], r=new Uint32Array(n); crypto.getRandomValues(r);
+  for(let i=0;i<n;i++) out.push(WORDS[r[i] % WORDS.length]);
+  return out;
+}
+const pretty = w => w.map(cap).join('.');
+const parseWords = s => s.trim().toLowerCase().split(/[.\-\s_/]+/).filter(Boolean);
+
+/* ---------- state ---------- */
+let auth, db, me=null, handle='You', key=null, addr=null, words=[], unsub=null, mode='login', lastSender=null;
+const seen = new Set();
+
+/* ---------- boot ---------- */
+if (FIREBASE_CONFIG.apiKey.startsWith('PASTE')) {
+  $('gatesub').textContent = 'Setup: paste your Firebase web config into FIREBASE_CONFIG near the bottom of this file, then switch on Email/Password sign-in.';
+  $('godo').disabled = true;
+} else if (!window.isSecureContext || !crypto.subtle) {
+  $('gatesub').textContent = 'OpenCase needs HTTPS — browser encryption is unavailable on this connection.';
+  $('godo').disabled = true;
+} else {
+  const app = initializeApp(FIREBASE_CONFIG);
+  auth = getAuth(app); db = getFirestore(app);
+  onAuthStateChanged(auth, u => {
+    me = u;
+    if (!u) { show('gate'); return; }
+    handle = u.displayName || (u.email || 'you').split('@')[0];
+    $('who').textContent = handle;
+    enterLobby();
+  });
+}
+
+/* ---------- auth ---------- */
+$('swapbtn').onclick = () => {
+  mode = mode === 'login' ? 'signup' : 'login';
+  const s = mode === 'signup';
+  $('handle').hidden = !s;
+  $('godo').textContent = s ? 'Create account' : 'Log in';
+  $('pass').autocomplete = s ? 'new-password' : 'current-password';
+  $('swaptext').textContent = s ? 'Already have one? ' : 'No account? ';
+  $('swapbtn').textContent = s ? 'Log in' : 'Create one';
+  $('gateerr').textContent = '';
+};
+['email','pass','handle'].forEach(id => $(id).addEventListener('keydown', e => { if(e.key==='Enter') $('godo').click(); }));
+
+$('godo').onclick = async () => {
+  const email = $('email').value.trim(), pw = $('pass').value;
+  if (!email || pw.length < 6) { $('gateerr').textContent = 'Enter an email and a password of at least 6 characters.'; return; }
+  $('godo').disabled = true; $('gateerr').textContent = '';
+  try {
+    if (mode === 'signup') {
+      const cred = await createUserWithEmailAndPassword(auth, email, pw);
+      const name = ($('handle').value.trim() || email.split('@')[0]).slice(0,20);
+      await updateProfile(cred.user, { displayName: name });
+      handle = name; $('who').textContent = name;
+    } else {
+      await signInWithEmailAndPassword(auth, email, pw);
+    }
+    $('pass').value = '';
+  } catch (e) {
+    $('gateerr').textContent = ({
+      'auth/invalid-credential':"That email and password don't match an account.",
+      'auth/wrong-password':'That password is wrong.',
+      'auth/user-not-found':'No account with that email yet.',
+      'auth/email-already-in-use':'That email already has an account. Log in instead.',
+      'auth/invalid-email':"That email address isn't valid.",
+      'auth/weak-password':'Pick a longer password — at least 6 characters.',
+      'auth/too-many-requests':'Too many tries. Wait a minute, then go again.',
+      'auth/operation-not-allowed':'Switch on Email/Password sign-in in the Firebase console.'
+    })[e.code] || 'Could not sign in. Check your connection and try again.';
+  }
+  $('godo').disabled = false;
+};
+$('signout').onclick = () => { if (unsub) unsub(); signOut(auth); };
+
+/* ---------- lobby ---------- */
+function enterLobby(){ show('lobby'); reroll(); paintRecents(); autoJoinFromUrl(); }
+function reroll(){
+  const w = rollWords();
+  $('newwords').textContent = pretty(w);
+  $('newmeta').textContent = 'Six words · about ' + BITS + ' bits of key';
+  $('opennew').dataset.words = w.join('.');
+}
+$('reroll').onclick = reroll;
+$('opennew').onclick = () => openCase($('opennew').dataset.words.split('.'));
+$('joinbtn').onclick = () => {
+  const w = parseWords($('joinkey').value);
+  if (w.length < 3) { toast('Paste at least three words'); return; }
+  openCase(w);
+};
+$('joinkey').addEventListener('keydown', e => { if(e.key==='Enter') $('joinbtn').click(); });
+
+function recentList(){ try { return JSON.parse(localStorage.getItem('oc.recent')||'[]'); } catch { return []; } }
+function remember(w){
+  const k = w.join('.');
+  const list = recentList().filter(r => r.k !== k);
+  list.unshift({ k, t: Date.now() });
+  localStorage.setItem('oc.recent', JSON.stringify(list.slice(0,8)));
+}
+function paintRecents(){
+  const list = recentList();
+  $('recentwrap').hidden = !list.length;
+  const box = $('recents'); box.innerHTML = '';
+  list.forEach(r => {
+    const w = r.k.split('.');
+    const b = document.createElement('button'); b.className = 'recent';
+    b.appendChild(avatar(w[0]));
+    const t = document.createElement('div'); t.className = 'rt';
+    const n = document.createElement('div'); n.className = 'rn'; n.textContent = pretty(w);
+    const d = document.createElement('div'); d.className = 'rd';
+    d.textContent = new Date(r.t).toLocaleDateString([], {month:'short', day:'numeric'});
+    t.append(n,d); b.appendChild(t);
+    b.onclick = () => openCase(w);
+    box.appendChild(b);
+  });
+}
+
+function autoJoinFromUrl(){
+  const frag = new URLSearchParams(location.hash.slice(1)).get('k');
+  if (frag) { openCase(parseWords(frag)); return; }
+  if (VANITY_DOMAIN && location.hostname.endsWith('.' + VANITY_DOMAIN)) {
+    const w = location.hostname.slice(0, -(VANITY_DOMAIN.length + 1)).split('.');
+    if (w.length >= 3) openCase(w);
+  }
+}
+
+/* ---------- room ---------- */
+async function openCase(w){
+  words = w.map(x => x.toLowerCase());
+  $('opennew').disabled = true; toast('Deriving key…');
+  try { ({ key, addr } = await derive(words)); }
+  catch { toast('Could not derive that key'); $('opennew').disabled = false; return; }
+  $('opennew').disabled = false;
+
+  remember(words); paintRecents();
+  history.replaceState(null, '', location.pathname + '#k=' + words.map(cap).join('.'));
+  $('roomname').textContent = pretty(words);
+  $('sheetwords').textContent = pretty(words);
+  $('vanityopt').hidden = !VANITY_DOMAIN;
+  seen.clear(); lastSender = null; $('log').innerHTML = '';
+  show('room'); $('text').focus();
+  listen(); paintWire();
+}
+
+$('back').onclick = () => {
+  if (unsub) unsub();
+  key = null; addr = null;
+  history.replaceState(null, '', location.pathname);
+  show('lobby');
+};
+
+function listen(){
+  const q = query(collection(db,'cases',addr,'messages'), orderBy('t'), limit(300));
+  unsub = onSnapshot(q, async snap => {
+    const log = $('log');
+    if (snap.empty) {
+      log.innerHTML = ''; seen.clear(); lastSender = null;
+      const d = document.createElement('div'); d.className = 'blank';
+      const b = document.createElement('b'); b.textContent = 'Nobody here yet';
+      d.appendChild(b);
+      d.appendChild(document.createTextNode('Send the first message, or share the key so someone can open the case.'));
+      log.appendChild(d);
+      return;
+    }
+    const blank = log.querySelector('.blank'); if (blank) blank.remove();
+    const ttl = Number($('ttl').value), now = Date.now();
+    for (const ch of snap.docChanges()) {
+      const d = ch.doc;
+      if (ch.type === 'removed') {
+        seen.delete(d.id);
+        const el = log.querySelector('[data-id="'+d.id+'"]'); if (el) el.remove();
+        continue;
+      }
+      if (seen.has(d.id)) continue;
+      const data = d.data();
+      const ts = data.t ? data.t.toMillis() : now;
+      if (ttl && now - ts > ttl) { deleteDoc(d.ref).catch(()=>{}); continue; }
+      seen.add(d.id);
+      log.appendChild(await bubble(d.id, data, ts));
+    }
+    log.scrollTop = log.scrollHeight;
+  }, err => { console.error(err); toast('Lost connection to the case'); });
+}
+
+async function bubble(id, data, ts){
+  let p = null;
+  try { p = await unseal(key, data); } catch {}
+  const who = p ? String(p.n || 'Anon').slice(0,20) : 'Sealed';
+  const mine = !!(p && me && p.u === me.uid);
+  const sender = mine ? '\u0000me' : who;
+  const first = sender !== lastSender;
+  lastSender = sender;
+
+  const wrap = document.createElement('div');
+  wrap.dataset.id = id;
+  if (first && !mine) {
+    const n = document.createElement('div'); n.className = 'gname';
+    n.textContent = who + ' · ' + new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    wrap.appendChild(n);
+  }
+  const line = document.createElement('div');
+  line.className = 'line' + (mine ? ' mine' : '') + (first ? ' first' : '') + (p ? '' : ' sealed');
+  line.appendChild(avatar(who));
+  const bub = document.createElement('div'); bub.className = 'bub';
+  bub.textContent = p ? String(p.m || '') : 'Encrypted with a different key';
+  line.appendChild(bub);
+  wrap.appendChild(line);
+  return wrap;
+}
+
+/* ---------- sending ---------- */
+let wireTimer;
+$('text').addEventListener('input', () => {
+  $('send').disabled = !$('text').value.trim();
+  clearTimeout(wireTimer); wireTimer = setTimeout(paintWire, 140);
+});
+$('text').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); send(); } });
+$('send').onclick = send;
+
+async function send(){
+  const t = $('text').value.trim();
+  if (!t || !key) return;
+  $('send').disabled = true;
+  try {
+    const rec = await seal(key, { n: handle, m: t, u: me.uid, s: Date.now() });
+    await addDoc(collection(db,'cases',addr,'messages'), { c: rec.c, i: rec.i, t: serverTimestamp() });
+    $('text').value = ''; paintWire();
+  } catch (e) { console.error(e); toast('Send failed — check your Firestore rules'); }
+  $('text').focus();
+}
+
+async function paintWire(){
+  if (!key) return;
+  const rec = await seal(key, { n: handle, m: $('text').value, u: me.uid, s: Date.now() });
+  const clip = s => s.length > 76 ? s.slice(0,76) + '…' : s;
+  $('wire').innerHTML =
+    '<i>cases/</i>' + addr.slice(0,14) + '…<i>/messages/{auto}</i>\n\n' +
+    '<i>c:</i> ' + clip(rec.c) + '\n' +
+    '<i>i:</i> ' + rec.i + '\n' +
+    '<i>t:</i> {server timestamp}\n\n' +
+    '<i>// ' + rec.c.length + ' bytes of ciphertext — no plaintext anywhere</i>';
+}
+
+/* ---------- sheet ---------- */
+$('lockchip').onclick = () => { paintWire(); $('sheet').classList.add('on'); };
+$('closesheet').onclick = () => $('sheet').classList.remove('on');
+$('sheet').addEventListener('click', e => { if (e.target === $('sheet')) $('sheet').classList.remove('on'); });
+
+async function copy(text, msg){
+  try { await navigator.clipboard.writeText(text); toast(msg); }
+  catch { prompt('Copy this:', text); }
+}
+$('copykey').onclick = () => copy(pretty(words), 'Case key copied');
+$('copylink').onclick = () => copy(location.origin + location.pathname + '#k=' + words.map(cap).join('.'), 'Invite link copied');
+$('copyvanity').onclick = () => copy('https://' + words.join('.') + '.' + VANITY_DOMAIN + '/' + encodeURIComponent(handle), 'Vanity link copied');
+
+$('burn').onclick = async () => {
+  if (!addr) return;
+  if (!confirm('Delete every message in this case, for everyone. This cannot be undone.')) return;
+  const snap = await getDocs(collection(db,'cases',addr,'messages'));
+  await Promise.all(snap.docs.map(d => deleteDoc(d.ref).catch(()=>{})));
+  seen.clear(); lastSender = null; $('log').innerHTML = '';
+  $('sheet').classList.remove('on');
+  toast('Case burned');
+};
+$('ttl').onchange = () => toast('Auto-burn updated');
+</script>
+<script>
+(function () {
+  var bmk = document.getElementById('bmk');
+  var flag = null;
+  try { flag = localStorage.getItem('Bookmarked'); } catch (e) {}
+
+  if (flag === '1') return;
+
+  try { if (flag === null) localStorage.setItem('Bookmarked', '0'); } catch (e) {}
+
+  document.documentElement.classList.add('bmk-lock');
+  bmk.classList.add('on');
+
+  var mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+  if (mac) document.getElementById('keys').innerHTML = '<kbd>\u2318</kbd> + <kbd>D</kbd>';
+  if (/Android|iPhone|iPad/.test(navigator.userAgent)) {
+    document.getElementById('keys').style.display = 'none';
+    document.getElementById('bmktext').textContent =
+      "Save this page before you go any further. Open your browser's share menu and add it to your home screen or bookmarks — it's the only way back in.";
+  }
+
+  function unlock() {
+    try { localStorage.setItem('Bookmarked', '1'); } catch (e) {}
+    document.documentElement.classList.remove('bmk-lock');
+    bmk.classList.remove('on');
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D')) {
+      setTimeout(unlock, 400);
+    }
+  });
+
+  document.getElementById('bmkdone').onclick = unlock;
+  document.getElementById('bmkcopy').onclick = function () {
+    var url = location.origin + location.pathname;
+    navigator.clipboard.writeText(url).then(function () {
+      document.getElementById('bmkcopy').textContent = 'Copied';
+    }, function () {
+      prompt('Copy this:', url);
+    });
+  };
+})();
+</script>
+</body>
+</html>
