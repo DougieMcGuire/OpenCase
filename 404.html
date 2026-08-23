@@ -7,16 +7,22 @@
 <meta name="theme-color" content="#FFE500" />
 <title>OpenCase</title>
 <script>
-/* Runs before anything paints. Bookmarked=1 and a bare URL -> straight to the
-   decoy. Any hash (an invite link, or #open) always loads the app. */
-window.OC_REDIRECT = "about:blank";
-(function () {
-  try {
-    if (localStorage.getItem("Bookmarked") === "1" && !location.hash) {
-      location.replace(window.OC_REDIRECT);
-    }
-  } catch (e) {}
+/* Decides, before paint, which of three modes this load is:
+   app  - inside the cloak frame, or explicitly unlocked. Just the chat.
+   bmk  - first ever visit. Ask for a bookmark.
+   open - bookmarked already. Offer the cloaked window. */
+window.OC = (function () {
+  var inFrame; try { inFrame = window.self !== window.top; } catch (e) { inFrame = true; }
+  var raw = /(^|[#&])raw=1/.test(location.hash);
+  var flag = null; try { flag = localStorage.getItem('Bookmarked'); } catch (e) {}
+  return {
+    real: location.origin + location.pathname,
+    inFrame: inFrame,
+    raw: raw,
+    mode: (inFrame || raw) ? 'app' : (flag === '1' ? 'open' : 'bmk')
+  };
 })();
+if (window.OC.mode !== 'app') document.documentElement.className = 'oc-lock';
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -117,29 +123,38 @@ select{font:inherit;background:var(--them);border:0;border-radius:11px;padding:9
 .toast.on{opacity:1}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
-.bmk{position:absolute;inset:0;z-index:60;background:var(--paper);display:none;
-  flex-direction:column;justify-content:center;padding:0 26px}
-.bmk.on{display:flex}
-html.bmk-lock #app>.screen{display:none!important}
-.bmk .mark{margin-bottom:10px}
-.bmk p{color:var(--dim);font-size:15px;line-height:1.5;margin:0 0 24px;max-width:32ch}
+.oc-lock #app > .screen{display:none!important}
+.veil{position:absolute;inset:0;z-index:60;background:var(--paper);display:none;
+  flex-direction:column;justify-content:center;padding:0 26px;overflow-y:auto}
+.veil.on{display:flex}
+.veil .mark{margin-bottom:10px}
+.veil p{color:var(--dim);font-size:15px;line-height:1.5;margin:0 0 22px;max-width:34ch}
+.veil .big{max-width:420px}
 .keys{display:inline-flex;align-items:center;gap:6px;background:var(--them);border-radius:12px;
-  padding:12px 16px;font-weight:700;font-size:15px;margin-bottom:22px;align-self:flex-start}
-.keys kbd{font-family:var(--font-mono,'JetBrains Mono',monospace);background:var(--paper);
-  border:1px solid var(--line);border-radius:7px;padding:3px 8px;font-size:14px}
-.bmk .note{font-size:13px;color:var(--dim);margin:16px 2px 0}
+  padding:11px 15px;font-weight:700;font-size:15px;margin-bottom:20px;align-self:flex-start}
+.keys kbd{font-family:'JetBrains Mono',monospace;background:var(--paper);border:1px solid var(--line);
+  border-radius:7px;padding:3px 8px;font-size:14px}
+.veil .note{font-size:13px;color:var(--dim);margin:16px 2px 0;max-width:38ch}
+@media (max-height:560px){.veil{justify-content:flex-start;padding-top:24px;padding-bottom:24px}}
 </style>
 </head>
 <body>
 <div id="app">
 
-  <div class="bmk" id="bmk">
+  <div class="veil" id="veilbmk">
     <div class="mark">Open<em>Case</em></div>
-    <p id="bmktext">Save this page before you go any further. It's the only way back in — there's no search result, no link, nothing to find it by.</p>
+    <p id="bmktext">Bookmark this page first. Once you go in, the address bar stops showing where you are — the bookmark becomes your only way back.</p>
     <div class="keys" id="keys"><kbd>Ctrl</kbd> + <kbd>D</kbd></div>
-    <button class="big pop" id="bmkdone">I've bookmarked it</button>
+    <button class="big pop" id="bmkdone">I've bookmarked it — open</button>
     <button class="big" id="bmkcopy" style="background:var(--them);color:var(--ink)">Copy the link instead</button>
-    <p class="note">After this, opening the bare bookmark shows a blank page. Your invite links still open the app.</p>
+  </div>
+
+  <div class="veil" id="veilopen">
+    <div class="mark">Open<em>Case</em></div>
+    <p>Opens in a window that reports itself as a blank page. Everything works normally inside it.</p>
+    <button class="big pop" id="golaunch">Open OpenCase</button>
+    <button class="big" id="goplain" style="background:var(--them);color:var(--ink)">Open here instead</button>
+    <p class="note" id="opennote">Hides the address from anyone looking at your screen or your history. It does not hide traffic from a network.</p>
   </div>
 
 
@@ -582,46 +597,104 @@ $('ttl').onchange = () => toast('Auto-burn updated');
 </script>
 <script>
 (function () {
-  var bmk = document.getElementById('bmk');
-  var flag = null;
-  try { flag = localStorage.getItem('Bookmarked'); } catch (e) {}
+  var OC = window.OC;
+  if (OC.mode === 'app') return;
 
-  if (flag === '1') return;
+  var veilBmk = document.getElementById('veilbmk');
+  var veilOpen = document.getElementById('veilopen');
 
-  try { if (flag === null) localStorage.setItem('Bookmarked', '0'); } catch (e) {}
-
-  document.documentElement.classList.add('bmk-lock');
-  bmk.classList.add('on');
-
-  var mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
-  if (mac) document.getElementById('keys').innerHTML = '<kbd>\u2318</kbd> + <kbd>D</kbd>';
-  if (/Android|iPhone|iPad/.test(navigator.userAgent)) {
-    document.getElementById('keys').style.display = 'none';
-    document.getElementById('bmktext').textContent =
-      "Save this page before you go any further. Open your browser's share menu and add it to your home screen or bookmarks — it's the only way back in.";
+  function unlockApp() {
+    document.documentElement.classList.remove('oc-lock');
+    veilBmk.classList.remove('on');
+    veilOpen.classList.remove('on');
   }
 
-  function unlock() {
-    try { localStorage.setItem('Bookmarked', '1'); } catch (e) {}
-    document.documentElement.classList.remove('bmk-lock');
-    bmk.classList.remove('on');
+  function frameDoc(src, real) {
+    return '<!doctype html><html><head><meta charset="utf-8">' +
+      '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">' +
+      '<title>OpenCase</title><style>' +
+      'html,body{margin:0;height:100%;background:#fff;overflow:hidden;' +
+      'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}' +
+      '#bar{height:44px;display:flex;align-items:center;justify-content:space-between;gap:10px;' +
+      'padding:0 12px;border-bottom:1px solid #EBE8E0;background:#fff;box-sizing:border-box}' +
+      '#bar b{font-size:14px;font-weight:700;letter-spacing:-.01em}' +
+      '#fix{font:inherit;font-size:12.5px;font-weight:600;border:0;cursor:pointer;' +
+      'background:#FFE500;color:#0B0B0C;border-radius:9px;padding:8px 11px;white-space:nowrap}' +
+      '#f{border:0;display:block;width:100%;height:calc(100% - 44px)}' +
+      '@media (max-width:400px){#bar b{display:none}#fix{width:100%}}' +
+      '</style></head><body>' +
+      '<div id="bar"><b>OpenCase</b>' +
+      '<button id="fix">Not bookmarked? Go back to fix it</button></div>' +
+      '<iframe id="f" src="' + src + '"></iframe>' +
+      '<scr' + 'ipt>document.getElementById("fix").onclick=function(){' +
+      'location.href=' + JSON.stringify(real) + '};</scr' + 'ipt>' +
+      '</body></html>';
   }
 
-  document.addEventListener('keydown', function (e) {
-    if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D')) {
-      setTimeout(unlock, 400);
+  function launch() {
+    var hash = location.hash;
+    var src = OC.real + (hash ? hash + '&raw=1' : '#raw=1');
+    var w = null;
+    try { w = window.open('about:blank', '_blank'); } catch (e) {}
+    if (!w || w.closed || typeof w.document === 'undefined') { unlockApp(); return false; }
+    try {
+      w.document.open();
+      w.document.write(frameDoc(src, OC.real));
+      w.document.close();
+    } catch (e) {
+      try { w.close(); } catch (e2) {}
+      unlockApp();
+      return false;
     }
-  });
+    /* The original tab still shows the real address. Swap this for
+       location.replace('https://www.google.com') if you want it gone too. */
+    document.getElementById('opennote').textContent = 'Opened in a new tab. Close this one.';
+    return true;
+  }
 
-  document.getElementById('bmkdone').onclick = unlock;
-  document.getElementById('bmkcopy').onclick = function () {
-    var url = location.origin + location.pathname;
-    navigator.clipboard.writeText(url).then(function () {
-      document.getElementById('bmkcopy').textContent = 'Copied';
-    }, function () {
-      prompt('Copy this:', url);
+  if (OC.mode === 'bmk') {
+    try { if (localStorage.getItem('Bookmarked') === null) localStorage.setItem('Bookmarked', '0'); } catch (e) {}
+    veilBmk.classList.add('on');
+
+    var ua = navigator.userAgent;
+    var touch = /Android|iPhone|iPad|iPod/.test(ua);
+    if (/Mac|iPhone|iPad/.test(navigator.platform || ua)) {
+      document.getElementById('keys').innerHTML = '<kbd>\u2318</kbd> + <kbd>D</kbd>';
+    }
+    if (touch) {
+      document.getElementById('keys').style.display = 'none';
+      document.getElementById('bmktext').textContent =
+        "Save this page first. Use your browser's share menu \u2014 Add Bookmark, or Add to Home Screen. " +
+        "Once you go in, the address bar stops showing where you are.";
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D')) {
+        try { localStorage.setItem('Bookmarked', '1'); } catch (err) {}
+      }
     });
-  };
+
+    document.getElementById('bmkdone').onclick = function () {
+      try { localStorage.setItem('Bookmarked', '1'); } catch (e) {}
+      veilBmk.classList.remove('on');
+      veilOpen.classList.add('on');
+      launch();
+    };
+
+    document.getElementById('bmkcopy').onclick = function () {
+      var btn = this;
+      navigator.clipboard.writeText(OC.real).then(function () {
+        btn.textContent = 'Copied';
+      }, function () {
+        prompt('Copy this:', OC.real);
+      });
+    };
+    return;
+  }
+
+  veilOpen.classList.add('on');
+  document.getElementById('golaunch').onclick = launch;
+  document.getElementById('goplain').onclick = unlockApp;
 })();
 </script>
 </body>
