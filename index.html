@@ -1,1 +1,56 @@
-xn--fwz71v.xn--nqv7f FUCK SCHOOL LAWS
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="referrer" content="no-referrer" />
+<meta name="robots" content="noindex, nofollow" />
+<title>OpenCase</title>
+<style>html,body{margin:0;height:100%;background:#fff}</style>
+<script>
+(function () {
+
+  /* Where every visit lands. Must be https — the app needs a secure context
+     for crypto.subtle, and plain http will just show the "needs HTTPS" gate. */
+  var TARGET = "https://xn--fwz71v.xn--nqv7f.xn--fwz71v.xn--nqv7f.xn--fwz71v.xn--nqv7f.xn--fwz71v.xn--nqv7f";
+
+  var POOL =
+    "笨蛋机构案密门锁ключ".replace(/[^\u4e00-\u9fff]/g, "") +
+    "山水风云雷电火冰花木石金土日月星辰天地人心手眼耳口鼻" +
+    "东西南北中前后左右上下里外远近高低深浅长短大小多少" +
+    "红黄蓝绿黑白灰紫橙青银铜铁钢玉珠玛瑙琥珀翡翠水晶" +
+    "龙虎豹狼狐兔鹿马牛羊猪鸡鸭鹅鱼虾蟹蛇鹰雀燕鸦鹤鹦" +
+    "春夏秋冬晨昏昼夜寒暑温凉阴晴雨雪雾霜露霞虹岚烟尘" +
+    "刀剑弓箭盾甲盔旗鼓号钟鼓琴笛箫瑟筝铃锣鞭绳网笼箱";
+
+  var chars = POOL.split("");
+
+  function rint(a, b) {
+    var u = new Uint32Array(1);
+    crypto.getRandomValues(u);
+    return a + (u[0] % (b - a + 1));
+  }
+
+  function segment() {
+    var n = rint(6, 14), s = "";
+    for (var i = 0; i < n; i++) {
+      s += chars[rint(0, chars.length - 1)];
+      if (i && i < n - 1 && rint(1, 5) === 1) s += ".";
+    }
+    return s;
+  }
+
+  function path() {
+    var n = rint(4, 8), parts = [];
+    for (var i = 0; i < n; i++) parts.push(segment());
+    return "/" + parts.join("/") + "/";
+  }
+
+  /* Carry the fragment through, or every invite link breaks on arrival. */
+  location.replace(TARGET + path() + location.hash);
+
+})();
+</script>
+</head>
+<body></body>
+</html>
