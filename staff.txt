@@ -1,0 +1,34 @@
+// staff.txt — the OpenCase team page.
+//
+// A JSON array. Each entry takes four fields, all optional except name:
+//
+//   name  the person (shows big)
+//   role  small red label above the name
+//   img   photo — a full https:// URL, or a file in your repo like "staff/steve.jpg"
+//         leave it "" and you get a coloured initial instead
+//   bio   a line or three of nonsense
+//
+// Lines starting with // are stripped before parsing, so you can leave notes
+// like this one. Everything else has to be valid JSON — mind the commas, and
+// no trailing comma after the last entry.
+
+[
+  {
+    "name": "Darren Watkins Jr.",
+    "role": "",
+    "img": "IMG_3437.jpeg",
+    "bio": ""
+  },
+  {
+    "name": "Jonah Hill",
+    "role": "",
+    "img": "IMG_3438.jpeg",
+    "bio": ""
+  },
+  {
+    "name": "kanye",
+    "role": "",
+    "img": "IMG_3439.jpeg",
+    "bio": "runaway run away"
+  }
+]
