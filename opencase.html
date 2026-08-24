@@ -417,6 +417,34 @@ button.rowitem:hover{background:var(--soft)}
       <div id="stafflist"></div>
     </div></div>
 
+    <div class="scroll" id="tab-mask" style="display:none"><div class="pad">
+      <p class="muted" style="margin:0 0 18px">Change what this tab calls itself. The name and icon in your
+        browser tab, history and bookmarks all follow whatever you pick here.</p>
+
+      <p class="lbl">Right now it looks like</p>
+      <div class="tabprev"><img id="mk-picon" alt="" /><span id="mk-ptitle">OpenCase</span></div>
+      <div class="tabbar"></div>
+
+      <p class="lbl">Disguise as a site</p>
+      <input class="inp" id="mk-url" placeholder="classroom.google.com" spellcheck="false" autocapitalize="off" />
+      <div class="hint" id="mk-hint"></div>
+      <button class="btn" id="mk-apply">Apply disguise</button>
+      <button class="btn grey" id="mk-reset" style="margin-top:10px">Back to OpenCase</button>
+
+      <p class="lbl" style="margin-top:26px">Presets</p>
+      <div class="presets" id="mk-presets"></div>
+      <p class="hint" id="mk-presethint" style="margin-top:10px"></p>
+
+      <div class="togg">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:15px">Fetch real icons</div>
+          <div class="sm muted" style="margin-top:2px">One request to icons.duckduckgo.com per site, then
+            cached forever. Turn this off and icons are drawn locally with no network at all.</div>
+        </div>
+        <button class="sw2" id="mk-fetch" aria-label="Toggle icon fetching"><i></i></button>
+      </div>
+    </div></div>
+
     <nav class="nav" id="nav">
       <button data-tab="chats" class="on">
         <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.9 8.9 0 0 1-3.8-.9L3 21l1.9-5.1A8.4 8.4 0 0 1 12 3.1a8.4 8.4 0 0 1 9 8.4z"/></svg>
@@ -426,6 +454,10 @@ button.rowitem:hover{background:var(--soft)}
         <span class="dot" id="reqdot"></span>
         <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>
         Friends
+      </button>
+      <button data-tab="mask">
+        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.6"/><path d="M3 3l18 18"/></svg>
+        Mask
       </button>
       <button data-tab="me">
         <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -537,43 +569,6 @@ button.rowitem:hover{background:var(--soft)}
         </button>
       </div>
     </div>
-  </section>
-
-  <!-- ============ DISGUISE ============ -->
-  <section id="s-mask" class="screen">
-    <div class="top">
-      <button class="ico" id="mk-back" aria-label="Back">
-        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <div class="ttl">Disguise</div>
-    </div>
-    <div class="scroll"><div class="pad">
-      <p class="muted" style="margin:0 0 18px">Change what this tab calls itself. The name and icon in your
-        browser tab, history and bookmarks all follow whatever you pick here.</p>
-
-      <p class="lbl">Right now it looks like</p>
-      <div class="tabprev"><img id="mk-picon" alt="" /><span id="mk-ptitle">OpenCase</span></div>
-      <div class="tabbar"></div>
-
-      <p class="lbl">Disguise as a site</p>
-      <input class="inp" id="mk-url" placeholder="classroom.google.com" spellcheck="false" autocapitalize="off" />
-      <div class="hint" id="mk-hint"></div>
-      <button class="btn" id="mk-apply">Apply disguise</button>
-      <button class="btn grey" id="mk-reset" style="margin-top:10px">Back to OpenCase</button>
-
-      <p class="lbl" style="margin-top:26px">Presets</p>
-      <div class="presets" id="mk-presets"></div>
-      <p class="hint" id="mk-presethint" style="margin-top:10px"></p>
-
-      <div class="togg">
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:700;font-size:15px">Fetch real icons</div>
-          <div class="sm muted" style="margin-top:2px">One request to icons.duckduckgo.com per site, then
-            cached forever. Turn this off and icons are drawn locally with no network at all.</div>
-        </div>
-        <button class="sw2" id="mk-fetch" aria-label="Toggle icon fetching"><i></i></button>
-      </div>
-    </div></div>
   </section>
 
   <div id="s-placeholder">
@@ -875,9 +870,10 @@ $('nav').addEventListener('click', e => {
   if (b) setTab(b.dataset.tab);
 });
 function setTab(t){
-  ['chats','friends','me','staff'].forEach(k => $('tab-'+k).style.display = k===t?'block':'none');
+  ['chats','friends','mask','me','staff'].forEach(k => $('tab-'+k).style.display = k===t?'block':'none');
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on', b.dataset.tab===t));
-  $('m-title').textContent = {chats:'Chats',friends:'Friends',me:'Me',staff:'Staff'}[t];
+  $('m-title').textContent = {chats:'Chats',friends:'Friends',mask:'Mask',me:'Me',staff:'Staff'}[t];
+  if (t==='mask'){ paintMaskPreview(); loadPresets(); }
   $('m-action').style.display = t==='chats'?'grid':'none';
   if (t==='staff') paintStaff();
   if (t==='me') paintMe();
@@ -1487,25 +1483,69 @@ function letterIcon(ch, color){
   return 'data:image/svg+xml,' + encodeURIComponent(svg);
 }
 
+/* Loads an image cross-origin and resolves only if it actually renders.
+   No CORS needed — this is how <img> has always worked. */
+function testImage(url, timeout){
+  return new Promise(res => {
+    const img = new Image();
+    let done = false;
+    const finish = ok => { if (!done){ done = true; res(ok ? url : null); } };
+    img.onload  = () => finish(img.naturalWidth > 1 && img.naturalHeight > 1);
+    img.onerror = () => finish(false);
+    setTimeout(() => finish(false), timeout || 6000);
+    img.src = url;
+  });
+}
+
+/* Once we have a URL that works, try to bake it into a data URL so it never
+   hits the network again. Needs CORS; if that's refused we simply keep the URL. */
+function toDataUrl(url){
+  return new Promise(res => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    let done = false;
+    const give = v => { if (!done){ done = true; res(v); } };
+    img.onload = () => {
+      try {
+        const c = document.createElement('canvas');
+        c.width = c.height = 64;
+        const x = c.getContext('2d');
+        x.drawImage(img, 0, 0, 64, 64);
+        give(c.toDataURL('image/png'));
+      } catch(e){ give(null); }
+    };
+    img.onerror = () => give(null);
+    setTimeout(() => give(null), 6000);
+    img.src = url;
+  });
+}
+
+function iconSources(host){
+  return [
+    'https://icons.duckduckgo.com/ip3/' + host + '.ico',
+    'https://www.google.com/s2/favicons?sz=64&domain=' + encodeURIComponent(host),
+    'https://favicon.im/' + host + '?larger=true',
+    'https://' + host + '/favicon.ico'
+  ];
+}
+
 async function iconFor(host, title){
   if (iconCache[host]) return iconCache[host];
-  const fallback = letterIcon((title||host)[0].toUpperCase(), '#FF4B3E');
-  if (!fetchIcons) return fallback;
-  try {
-    const res = await fetch('https://icons.duckduckgo.com/ip3/'+host+'.ico', { mode:'cors', cache:'force-cache' });
-    if (!res.ok) throw new Error('status '+res.status);
-    const blob = await res.blob();
-    if (blob.size < 40 || blob.size > 200000) throw new Error('bad size');
-    const data = await new Promise((ok,no)=>{
-      const fr=new FileReader(); fr.onload=()=>ok(fr.result); fr.onerror=no; fr.readAsDataURL(blob);
-    });
-    iconCache[host] = data;
-    try { localStorage.setItem(ICONS_KEY, JSON.stringify(iconCache)); } catch(e){}
-    return data;
-  } catch(e){
-    console.warn('icon fetch failed for', host, e.message);
-    return fallback;
+  if (!fetchIcons) return letterIcon((title||host)[0].toUpperCase(), '#FF4B3E');
+
+  for (const src of iconSources(host)){
+    const ok = await testImage(src);
+    if (!ok) continue;
+    const data = await toDataUrl(ok);
+    const keep = data || ok;
+    iconCache[host] = keep;
+    try { localStorage.setItem(ICONS_KEY, JSON.stringify(iconCache)); }
+    catch(e){ iconCache = { [host]: keep };
+              try { localStorage.setItem(ICONS_KEY, JSON.stringify(iconCache)); } catch(e2){} }
+    return keep;
   }
+  console.warn('every icon source failed for', host);
+  return letterIcon((title||host)[0].toUpperCase(), '#FF4B3E');
 }
 
 function saveMask(m){
@@ -1528,17 +1568,18 @@ function paintMaskPreview(){
 async function applyHost(raw){
   const host = hostOf(raw);
   if (!host){ $('mk-hint').className='hint bad'; $('mk-hint').textContent='That does not look like a web address.'; return; }
-  $('mk-hint').className='hint'; $('mk-hint').textContent='Building the disguise…';
+  $('mk-hint').className='hint'; $('mk-hint').textContent='Fetching the real icon for '+host+'…';
   const title = titleFor(host);
   const icon = await iconFor(host, title);
+  if (icon.indexOf('image/svg') !== -1)
+    console.warn('fell back to a letter icon for', host);
   saveMask({ title, icon, host });
   $('mk-hint').className='hint ok';
   $('mk-hint').textContent = 'This tab is now "' + title + '".';
   $('mk-url').value = '';
 }
 
-$('me-mask').onclick = () => { show('s-mask'); paintMaskPreview(); loadPresets(); };
-$('mk-back').onclick = () => show('s-main');
+$('me-mask').onclick = () => setTab('mask');
 $('mk-apply').onclick = () => applyHost($('mk-url').value);
 $('mk-url').addEventListener('keydown', e => { if (e.key==='Enter') $('mk-apply').click(); });
 $('mk-reset').onclick = () => {
@@ -1596,8 +1637,12 @@ async function loadPresets(){
     const b = document.createElement('button');
     b.className = 'preset'; b.dataset.host = e.host;
     const img = document.createElement('img');
-    img.src = iconCache[e.host] || letterIcon(title[0].toUpperCase(), '#9CA3AF');
     img.alt = '';
+    if (iconCache[e.host]) img.src = iconCache[e.host];
+    else {
+      img.src = letterIcon(title[0].toUpperCase(), '#C9CBD1');
+      iconFor(e.host, title).then(ic => { img.src = ic; });
+    }
     const sp = document.createElement('span'); sp.textContent = title;
     b.append(img, sp);
     b.onclick = async () => {
