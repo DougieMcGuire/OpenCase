@@ -962,6 +962,8 @@ const db = getFirestore(app);
 let me=null, profile=null, chats=[], friends=[], reqs=[];
 let unsubChats=null, unsubFriends=null, unsubReqs=null, unsubMsgs=null;
 let openChat=null, lastSender=null;
+let replyTo=null;               /* hoisted: pushMessage() reads this */
+let soundOnRef=()=>true;        /* replaced once settings load */
 const userCache = new Map();
 const seenMsg = new Set();
 
@@ -2235,7 +2237,6 @@ $('setsheet').addEventListener('click', e => { if (e.target===$('setsheet')) $('
 soundOnRef = () => getSet('sound');
 
 /* ================= REPLY ================= */
-let replyTo = null;
 function setReplyTo(id, m){
   const who = m.uid===me.uid ? 'You' : ((userCache.get(m.uid)||{}).name || 'Them');
   const preview = m.img ? '\uD83D\uDCF7 Photo' : (m.text||'');
@@ -2288,7 +2289,7 @@ function paintSeen(){
 
 /* ================= PANIC EXIT, SOUND, TITLE BADGE ================= */
 let panicHost = localStorage.getItem('oc.panic') || 'classroom.google.com';
-let soundOnRef = () => localStorage.getItem('oc.sound') !== '0';
+soundOnRef = () => localStorage.getItem('oc.sound') !== '0';
 
 $('mk-panic').value = panicHost;
 $('mk-sound').classList.toggle('on', soundOnRef());
@@ -2386,10 +2387,15 @@ window.addEventListener('beforeunload', () => { try { setTyping(false); } catch(
 /* ================= SITE MASKING =================
    Local-first. The only network this can ever do is one favicon lookup per
    site, and only with the toggle on. Applying a disguise never waits on it. */
-const DEFAULT_ICON = window.OC_DEFAULT_ICON;
+const DEFAULT_ICON = window.OC_DEFAULT_ICON ||
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext x='32' y='47' font-family='Arial' font-size='54' font-weight='bold' fill='%23FF4B3E' text-anchor='middle'%3EO%3C/text%3E%3C/svg%3E";
 const MASK_KEY = 'oc.mask', ICONS_KEY = 'oc.icons', FETCH_KEY = 'oc.iconfetch';
 
-let mask = window.OC_MASK;
+let mask = window.OC_MASK || { title:'OpenCase', icon:DEFAULT_ICON, host:'' };
+if (!mask.icon) mask.icon = DEFAULT_ICON;
+if (typeof window.OC_APPLY_MASK !== 'function'){
+  window.OC_APPLY_MASK = function(m, d){ try{ (d||document).title = m.title; }catch(e){} };
+}
 let iconCache = {};
 try { iconCache = JSON.parse(localStorage.getItem(ICONS_KEY) || '{}'); } catch(e){ iconCache = {}; }
 let fetchIcons = localStorage.getItem(FETCH_KEY) !== '0';
