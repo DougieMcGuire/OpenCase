@@ -1,0 +1,41 @@
+# OpenCase disguise presets
+#
+# One site per line. Format:
+#     hostname
+#     hostname|Display Name
+#
+# The display name is what appears in the browser tab. Leave it off and
+# OpenCase works one out from the hostname. Lines starting with # are ignored.
+# This file loads from the site root, so it must sit next to index.html.
+
+classroom.google.com|Classroom
+docs.google.com|Google Docs
+drive.google.com|Google Drive
+mail.google.com|Gmail
+sheets.google.com|Google Sheets
+slides.google.com|Google Slides
+calendar.google.com|Google Calendar
+google.com|Google
+
+en.wikipedia.org|Wikipedia
+khanacademy.org|Khan Academy
+canvas.instructure.com|Canvas
+schoology.com|Schoology
+clever.com|Clever
+powerschool.com|PowerSchool
+quizlet.com|Quizlet
+desmos.com|Desmos
+ixl.com|IXL
+nearpod.com|Nearpod
+edpuzzle.com|Edpuzzle
+kahoot.it|Kahoot!
+
+office.com|Office
+outlook.com|Outlook
+teams.microsoft.com|Microsoft Teams
+onedrive.live.com|OneDrive
+zoom.us|Zoom
+
+duolingo.com|Duolingo
+weather.com|Weather
+dictionary.com|Dictionary
