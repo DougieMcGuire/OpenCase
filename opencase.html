@@ -28,6 +28,28 @@ input{font:inherit;color:inherit;width:100%}
 @media (min-width:520px){#app{top:0;bottom:0;left:50%;right:auto;width:480px;
   transform:translateX(-50%);border-left:1px solid var(--line);border-right:1px solid var(--line)}}
 
+/* ---------- desktop: sidebar + conversation, once signed in ---------- */
+#right{display:contents}
+#s-placeholder{display:none}
+@media (min-width:900px){
+  #app.in{width:min(1180px,100vw);max-width:none;flex-direction:row}
+  #app.in #s-main{display:flex!important;width:352px;flex:none;
+    border-right:1px solid var(--line);min-height:0}
+  #app.in #right{display:flex;flex:1;min-width:0;flex-direction:column}
+  #app.in #right>.screen{border:0}
+  #app.in #s-placeholder{display:flex;flex:1;align-items:center;justify-content:center}
+  #app.in #right:has(> .screen.on) #s-placeholder{display:none}
+  #app.in #log{padding:20px 26px 8px}
+  #app.in .bar{padding:14px 22px 18px}
+  #app.in .bub{max-width:66%}
+  #app.in #c-back{display:none}
+  #app.in .pad{padding:22px 26px 34px}
+  #app.in .rowitem{padding-left:22px;padding-right:22px}
+  #app.in .sheetin{max-width:520px;margin:0 auto;border-radius:24px;margin-bottom:5vh}
+  #app.in .sheet{align-items:center}
+  #app.in .toast{bottom:34px}
+}
+
 .screen{display:none;flex:1;min-height:0;flex-direction:column}
 .screen.on{display:flex}
 .scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -284,6 +306,8 @@ button.rowitem:hover{background:var(--soft)}
     </nav>
   </section>
 
+  <div id="right">
+
   <!-- ============ CHAT ============ -->
   <section id="s-chat" class="screen">
     <div class="top">
@@ -326,6 +350,16 @@ button.rowitem:hover{background:var(--soft)}
       <button class="btn" id="n-go" style="margin-top:16px">Create group</button>
     </div></div>
   </section>
+
+  <div id="s-placeholder">
+    <div style="text-align:center;color:var(--faint);padding:40px">
+      <span class="emoji">💬</span>
+      <div class="h2" style="color:var(--dim)">Pick a chat</div>
+      <div class="sm" style="margin-top:4px">Or start a group with the + button.</div>
+    </div>
+  </div>
+
+  </div><!-- /#right -->
 
   <div class="sheet" id="sheet">
     <div class="sheetin">
@@ -445,7 +479,13 @@ function wireUserCheck(inputId, hintId){
         const s = await getDoc(doc(db,'usernames',v));
         h.textContent = s.exists() ? '@'+v+' is taken.' : '@'+v+' is free.';
         h.className = 'hint ' + (s.exists()?'bad':'ok');
-      } catch(e){ h.textContent=''; h.className='hint'; }
+      } catch(e){
+        console.error('username check failed:', e);
+        h.className='hint bad';
+        h.textContent = e.code==='permission-denied'
+          ? 'Firestore rules are blocking the username check.'
+          : 'Could not check that name (' + (e.code||'unknown') + ').';
+      }
     }, 420);
   });
 }
@@ -461,7 +501,10 @@ const AUTH_ERR = {
   'auth/weak-password':'Password needs at least 6 characters.',
   'auth/too-many-requests':'Too many attempts. Wait a minute.',
   'auth/network-request-failed':'Network problem. Check your connection.',
-  'auth/operation-not-allowed':'Enable Email/Password sign-in in the Firebase console.'
+  'auth/operation-not-allowed':'Enable Email/Password sign-in in the Firebase console.',
+  'permission-denied':'Firestore rules are blocking this. Publish the rules, then retry.',
+  'unavailable':'Cannot reach Firestore. Check the project has a database created.',
+  'failed-precondition':'Firestore has no database yet — create one in the console.'
 };
 
 async function writeProfile(uid, username, name){
@@ -494,7 +537,8 @@ $('a-go').onclick = async () => {
       e.code==='noname' ? 'What should people call you?' :
       e.code==='baduser' ? 'Pick a username: 3–20 letters, numbers or underscore.' :
       e.code==='taken' ? 'That username just got taken.' :
-      (AUTH_ERR[e.code] || 'Something went wrong. Try again.');
+      (AUTH_ERR[e.code] || ('Error: ' + (e.code || e.message || 'unknown')));
+    if (!AUTH_ERR[e.code]) console.error('OpenCase signup/login failure:', e);
   }
   busy($('a-go'), false, label);
 };
@@ -519,9 +563,11 @@ $('su-out').onclick = () => signOut(auth);
 onAuthStateChanged(auth, async u => {
   detach();
   me = u;
-  if (!u){ profile=null; userCache.clear(); show('s-auth'); inviteBanner(); return; }
+  if (!u){ profile=null; userCache.clear();
+    document.getElementById('app').classList.remove('in');
+    show('s-auth'); inviteBanner(); return; }
   const s = await getDoc(doc(db,'users',u.uid));
-  if (!s.exists()){ show('s-setup'); return; }
+  if (!s.exists()){ document.getElementById('app').classList.remove('in'); show('s-setup'); return; }
   profile = Object.assign({uid:u.uid}, s.data());
   userCache.set(u.uid, profile);
   await afterProfile();
@@ -540,6 +586,7 @@ async function afterProfile(){
     profile = Object.assign({uid:me.uid}, s.data());
     userCache.set(me.uid, profile);
   }
+  document.getElementById('app').classList.add('in');
   paintMe(); watchChats(); watchFriends(); watchReqs();
   show('s-main'); setTab('chats');
   await consumeHash();
