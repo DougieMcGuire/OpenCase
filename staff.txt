@@ -21,7 +21,7 @@
   },
   {
     "name": "Jonah Hill",
-    "role": "",
+    "role": "''Man these school phone laws fucking suck'' - Jonah Hill",
     "img": "IMG_3438.jpeg",
     "bio": ""
   },
