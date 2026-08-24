@@ -11,90 +11,98 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --brand:#FF4B3E; --brand-d:#D22F24; --brand-soft:#FFF0EE;
+  --brand:#FF4B3E; --brand-d:#D22F24; --brand-soft:#FFF1EF;
   --ink:#16181D; --dim:#6B7280; --faint:#9CA3AF;
   --line:#E9EAEE; --soft:#F5F6F8; --paper:#FFFFFF; --ok:#14A15C;
+  --side:340px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%}
 body{font-family:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
-  background:#E6E7EA;color:var(--ink);overflow:hidden;font-size:15px;line-height:1.5}
+  background:var(--paper);color:var(--ink);overflow:hidden;font-size:15px;line-height:1.5}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
-input{font:inherit;color:inherit;width:100%}
+input,textarea{font:inherit;color:inherit;width:100%}
 :focus-visible{outline:3px solid rgba(255,75,62,.35);outline-offset:2px}
 
-#app{position:fixed;inset:0;width:100%;max-width:480px;margin:0 auto;background:var(--paper);
-  display:flex;flex-direction:column;overflow:hidden}
-@media (min-width:520px){#app{top:0;bottom:0;left:50%;right:auto;width:480px;
-  transform:translateX(-50%);border-left:1px solid var(--line);border-right:1px solid var(--line)}}
-
-/* ---------- desktop: sidebar + conversation, once signed in ---------- */
-#right{display:contents}
-#s-placeholder{display:none}
-@media (min-width:900px){
-  #app.in{width:min(1180px,100vw);max-width:none;flex-direction:row}
-  #app.in #s-main{display:flex!important;width:352px;flex:none;
-    border-right:1px solid var(--line);min-height:0}
-  #app.in #right{display:flex;flex:1;min-width:0;flex-direction:column}
-  #app.in #right>.screen{border:0}
-  #app.in #s-placeholder{display:flex;flex:1;align-items:center;justify-content:center}
-  #app.in #right:has(> .screen.on) #s-placeholder{display:none}
-  #app.in #log{padding:20px 26px 8px}
-  #app.in .bar{padding:14px 22px 18px}
-  #app.in .bub{max-width:66%}
-  #app.in #c-back{display:none}
-  #app.in .pad{padding:22px 26px 34px}
-  #app.in .rowitem{padding-left:22px;padding-right:22px}
-  #app.in .sheetin{max-width:520px;margin:0 auto;border-radius:24px;margin-bottom:5vh}
-  #app.in .sheet{align-items:center}
-  #app.in .toast{bottom:34px}
-}
-
+#app{position:fixed;inset:0;width:100%;background:var(--paper);display:flex;flex-direction:column;overflow:hidden}
 .screen{display:none;flex:1;min-height:0;flex-direction:column}
 .screen.on{display:flex}
 .scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.pad{padding:18px 18px 30px}
+.pad{padding:20px 18px 32px;max-width:560px;margin:0 auto;width:100%}
+.narrow{max-width:420px}
 
-.logo{font-family:'Nunito',sans-serif;font-weight:900;font-size:34px;letter-spacing:-.035em}
+/* ---------- desktop: sidebar + pane ---------- */
+#right{display:contents}
+#s-placeholder{display:none}
+@media (min-width:900px){
+  #app.in{flex-direction:row}
+  #app.in #s-main{display:flex!important;width:var(--side);flex:none;
+    border-right:1px solid var(--line);min-height:0}
+  #app.in #right{display:flex;flex:1;min-width:0;flex-direction:column}
+  #app.in #s-placeholder{display:flex;flex:1;align-items:center;justify-content:center}
+  #app.in #right:has(> .screen.on) #s-placeholder{display:none}
+  #app.in #log{padding:22px 8% 8px}
+  #app.in .bar{padding:14px 8% 20px}
+  #app.in .bub{max-width:min(520px,62%)}
+  #app.in .backbtn{display:none}
+  #app.in .rowitem{padding-left:20px;padding-right:20px}
+  #app.in .sheet{align-items:center}
+  #app.in .sheetin{max-width:520px;margin:0 auto;border-radius:24px}
+  #app.in .toast{bottom:34px}
+}
+
+/* ---------- type ---------- */
+.logo{font-family:'Nunito',sans-serif;font-weight:900;font-size:36px;letter-spacing:-.035em}
 .logo em{font-style:normal;color:var(--brand)}
-.h1{font-family:'Nunito',sans-serif;font-weight:800;font-size:26px;margin:0 0 6px}
+.h1{font-family:'Nunito',sans-serif;font-weight:800;font-size:27px;margin:0 0 6px;letter-spacing:-.025em}
 .h2{font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;margin:0;letter-spacing:-.02em}
 .muted{color:var(--dim)} .sm{font-size:13px}
 .lbl{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin:0 0 9px}
 
+/* ---------- inputs ---------- */
 .inp{display:block;width:100%;background:var(--paper);border:2px solid var(--line);
-  border-radius:14px;padding:14px 15px;font-size:15.5px;margin-bottom:11px;transition:border-color .12s}
+  border-radius:14px;padding:14px 15px;font-size:16px;margin-bottom:11px;transition:border-color .12s}
 .inp:focus{border-color:var(--ink);outline:none}
 .inp::placeholder{color:var(--faint)}
 .inpwrap{position:relative;margin-bottom:11px}
 .inpwrap .inp{margin:0;padding-left:32px}
 .inpwrap .at{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--faint);font-weight:600}
-.hint{font-size:12.5px;margin:6px 2px 0;min-height:17px;font-weight:500}
+.hint{font-size:12.5px;margin:6px 2px 0;min-height:18px;font-weight:500}
 .hint.ok{color:var(--ok)} .hint.bad{color:var(--brand-d)}
 
+/* ---------- buttons ---------- */
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
   background:var(--brand);color:#fff;border-radius:14px;padding:15px;font-weight:700;font-size:15.5px;
   box-shadow:0 4px 0 var(--brand-d);transition:transform .06s,box-shadow .06s;font-family:'Nunito',sans-serif}
 .btn:active{transform:translateY(4px);box-shadow:0 0 0 var(--brand-d)}
-.btn:disabled{opacity:.55}
+.btn:disabled{opacity:.5}
 .btn.grey{background:var(--soft);color:var(--ink);box-shadow:0 4px 0 #DCDEE3}
 .btn.grey:active{box-shadow:0 0 0 #DCDEE3}
 .btn.line{background:var(--paper);color:var(--ink);box-shadow:0 0 0 2px var(--line) inset}
 .btn.line:active{transform:none}
-.btn.sm{padding:10px 14px;font-size:14px;width:auto;border-radius:11px;box-shadow:0 3px 0 var(--brand-d);flex:none}
+.btn.sm{padding:10px 15px;font-size:14px;width:auto;border-radius:11px;box-shadow:0 3px 0 var(--brand-d);flex:none}
 .btn.sm:active{transform:translateY(3px)}
 .btn.grey.sm{box-shadow:0 3px 0 #DCDEE3}
 .link{color:var(--brand);font-weight:700;cursor:pointer}
 .row{display:flex;gap:10px}
 
+/* ---------- steps ---------- */
+.dots{display:flex;gap:6px;margin-bottom:22px}
+.dots i{height:5px;flex:1;border-radius:99px;background:var(--line)}
+.dots i.on{background:var(--brand)}
+.step{display:none}
+.step.on{display:block}
+
+/* ---------- avatars ---------- */
 .av{border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;
   font-family:'Nunito',sans-serif;font-weight:800;overflow:hidden}
-.av-96{width:96px;height:96px;font-size:34px}
+.av-104{width:104px;height:104px;font-size:38px}
 .av-52{width:52px;height:52px;font-size:19px}
 .av-42{width:42px;height:42px;font-size:16px}
 .av-34{width:34px;height:34px;font-size:13px}
 .av-28{width:28px;height:28px;font-size:11px}
 
+/* ---------- chrome ---------- */
 .top{display:flex;align-items:center;gap:12px;padding:13px 14px;min-height:62px;flex:none;
   border-bottom:1px solid var(--line);background:var(--paper)}
 .top .ttl{flex:1;min-width:0;font-family:'Nunito',sans-serif;font-weight:800;font-size:19px;
@@ -102,7 +110,6 @@ input{font:inherit;color:inherit;width:100%}
 .top .sub{font-size:12px;color:var(--dim);font-weight:500;font-family:'Inter',sans-serif}
 .ico{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none}
 .ico:hover{background:var(--soft)}
-
 .nav{display:flex;flex:none;border-top:1px solid var(--line);background:var(--paper);
   padding-bottom:env(safe-area-inset-bottom)}
 .nav button{flex:1;padding:9px 0 11px;display:flex;flex-direction:column;align-items:center;gap:3px;
@@ -112,18 +119,19 @@ input{font:inherit;color:inherit;width:100%}
   border-radius:50%;background:var(--brand);display:none}
 .nav .dot.on{display:block}
 
+/* ---------- rows ---------- */
 .rowitem{display:flex;align-items:center;gap:13px;padding:11px 18px;width:100%;text-align:left}
 .rowitem .mid{flex:1;min-width:0}
 .rowitem .nm{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rowitem .ds{font-size:13.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rowitem .rt{font-size:11.5px;color:var(--faint);flex:none;align-self:flex-start;padding-top:3px}
 button.rowitem:hover{background:var(--soft)}
-
-.empty{text-align:center;color:var(--dim);font-size:14.5px;padding:44px 34px;line-height:1.55}
+.empty{text-align:center;color:var(--dim);font-size:14.5px;padding:40px 30px;line-height:1.55}
 .empty .big{font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:var(--ink);margin-bottom:6px}
 .emoji{font-size:38px;display:block;margin-bottom:12px}
 .card{border:2px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
 
+/* ---------- chat ---------- */
 #log{flex:1;min-height:0;overflow-y:auto;padding:14px 14px 6px}
 .gname{font-size:11.5px;font-weight:600;color:var(--faint);margin:10px 0 4px 42px}
 .mline{display:flex;align-items:flex-end;gap:8px;margin-bottom:3px}
@@ -135,32 +143,71 @@ button.rowitem:hover{background:var(--soft)}
 .mline.mine .av{display:none}
 .mline.mine .bub{background:var(--brand);color:#fff;border-bottom-right-radius:6px}
 .mline.first:not(.mine) .bub{border-bottom-left-radius:6px}
-.bar{display:flex;align-items:center;gap:9px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+.bub.photo{padding:4px;background:var(--soft)}
+.bub.photo img{display:block;max-width:240px;width:100%;border-radius:15px;cursor:pointer}
+.mline.mine .bub.photo{background:var(--brand)}
+.bar{display:flex;align-items:center;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));
   border-top:1px solid var(--line);flex:none}
 .bar .inp{margin:0;border-radius:99px;padding:12px 17px}
-.send{width:46px;height:46px;border-radius:50%;background:var(--brand);color:#fff;
-  display:grid;place-items:center;flex:none;box-shadow:0 3px 0 var(--brand-d)}
-.send:active{transform:translateY(3px);box-shadow:none}
-.send:disabled{background:var(--line);color:var(--faint);box-shadow:0 3px 0 #DCDEE3}
+.circ{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;flex:none}
+.circ.snap{background:var(--soft);color:var(--ink);box-shadow:0 3px 0 #DCDEE3}
+.circ.send{background:var(--brand);color:#fff;box-shadow:0 3px 0 var(--brand-d)}
+.circ:active{transform:translateY(3px);box-shadow:none}
+.circ.send:disabled{background:var(--line);color:var(--faint);box-shadow:0 3px 0 #DCDEE3}
 
-.sheet{position:absolute;inset:0;background:rgba(22,24,29,.45);display:none;align-items:flex-end;z-index:30}
+/* ---------- camera + editor ---------- */
+#s-cam,#s-edit{background:#0B0B0C;color:#fff}
+#s-cam .top,#s-edit .top{background:#0B0B0C;border-bottom-color:#26282E;color:#fff}
+.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:8px}
+#cam{max-width:100%;max-height:100%;border-radius:16px;background:#000}
+#ed{max-width:100%;max-height:100%;border-radius:16px;touch-action:none;cursor:crosshair}
+.camrow{display:flex;align-items:center;justify-content:space-around;padding:14px 18px calc(18px + env(safe-area-inset-bottom));flex:none}
+.shutter{width:70px;height:70px;border-radius:50%;background:#fff;border:5px solid rgba(255,255,255,.35);
+  background-clip:padding-box}
+.shutter:active{transform:scale(.93)}
+.camico{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;
+  display:grid;place-items:center}
+.tools{flex:none;padding:12px 14px calc(14px + env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;gap:11px}
+.swatches{display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+.sw{width:30px;height:30px;border-radius:50%;border:3px solid transparent;flex:none}
+.sw.on{border-color:#fff;transform:scale(1.12)}
+.toolrow{display:flex;gap:9px;align-items:center}
+.tool{flex:1;padding:11px;border-radius:12px;background:rgba(255,255,255,.13);color:#fff;
+  font-weight:700;font-size:14px;font-family:'Nunito',sans-serif;display:flex;
+  align-items:center;justify-content:center;gap:7px}
+.tool.on{background:var(--brand)}
+.textin{background:rgba(255,255,255,.13);border:0;border-radius:12px;padding:12px 14px;color:#fff;font-size:15px}
+.textin::placeholder{color:rgba(255,255,255,.5)}
+
+/* ---------- sheet / toast ---------- */
+.sheet{position:fixed;inset:0;background:rgba(22,24,29,.5);display:none;align-items:flex-end;z-index:60}
 .sheet.on{display:flex}
 .sheetin{background:var(--paper);width:100%;border-radius:24px 24px 0 0;
   padding:10px 20px calc(22px + env(safe-area-inset-bottom));max-height:86%;overflow-y:auto}
 .grab{width:38px;height:4px;border-radius:99px;background:var(--line);margin:0 auto 16px}
-.toast{position:absolute;left:50%;bottom:84px;transform:translateX(-50%);background:var(--ink);color:#fff;
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:var(--ink);color:#fff;
   font-size:14px;font-weight:600;padding:11px 18px;border-radius:99px;opacity:0;transition:opacity .18s;
-  z-index:50;pointer-events:none;max-width:88%;text-align:center}
+  z-index:90;pointer-events:none;max-width:88%;text-align:center}
 .toast.on{opacity:1}
 .spin{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;
   border-radius:50%;animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-.staff{display:flex;gap:14px;align-items:flex-start;padding:16px;border:2px solid var(--line);
-  border-radius:18px;margin-bottom:12px}
-.staff .bio{font-size:13.5px;color:var(--dim);margin-top:4px;line-height:1.5}
+.lightbox{position:fixed;inset:0;background:rgba(11,11,12,.94);display:none;align-items:center;
+  justify-content:center;z-index:80;padding:20px}
+.lightbox.on{display:flex}
+.lightbox img{max-width:100%;max-height:100%;border-radius:14px}
+
+/* ---------- staff ---------- */
+.staff{display:flex;gap:16px;align-items:flex-start;padding:16px;border:2px solid var(--line);
+  border-radius:20px;margin-bottom:14px}
+.shot{width:108px;aspect-ratio:3/4;border-radius:16px;flex:none;overflow:hidden;
+  display:grid;place-items:center;color:#fff;font-family:'Nunito',sans-serif;font-weight:900;font-size:40px}
+.shot img{width:100%;height:100%;object-fit:cover;display:block}
+.staff .bio{font-size:13.5px;color:var(--dim);margin-top:5px;line-height:1.5}
 .staff .role{font-size:11.5px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.05em}
 .chk{width:26px;height:26px;border-radius:9px;border:2px solid var(--line);flex:none;
-  display:grid;place-items:center;color:#fff}
+  display:grid;place-items:center;color:#fff;font-size:14px;font-weight:700}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -169,7 +216,7 @@ button.rowitem:hover{background:var(--soft)}
 
   <!-- ============ AUTH ============ -->
   <section id="s-auth" class="screen on">
-    <div class="scroll"><div class="pad" style="padding-top:44px">
+    <div class="scroll"><div class="pad narrow" style="padding-top:8vh">
       <div class="logo">Open<em>Case</em></div>
       <p class="muted" id="authblurb" style="margin:8px 0 24px">Private chats on a link nobody can guess.</p>
 
@@ -183,33 +230,65 @@ button.rowitem:hover{background:var(--soft)}
 
       <input class="inp" id="a-email" type="email" autocomplete="email" placeholder="Email" />
       <input class="inp" id="a-pass" type="password" autocomplete="current-password" placeholder="Password" />
-
-      <div id="signupOnly" style="display:none">
-        <input class="inp" id="a-name" placeholder="Your name" maxlength="30" autocomplete="name" />
-        <div class="inpwrap"><span class="at">@</span>
-          <input class="inp" id="a-user" placeholder="username" maxlength="20"
-                 autocomplete="off" spellcheck="false" autocapitalize="off" /></div>
-        <div class="hint" id="a-userhint"></div>
-      </div>
-
       <button class="btn" id="a-go" style="margin-top:8px">Log in</button>
       <div class="hint bad" id="a-err" style="text-align:center;margin-top:12px"></div>
-      <p class="muted sm" style="text-align:center;margin-top:16px">
-        <span id="a-swaptext">New here?</span> <a class="link" id="a-swap">Create an account</a>
+      <p class="muted sm" style="text-align:center;margin-top:14px">
+        New here? <a class="link" id="to-signup">Create an account</a>
       </p>
+    </div></div>
+  </section>
+
+  <!-- ============ SIGN UP (stepped) ============ -->
+  <section id="s-signup" class="screen">
+    <div class="top">
+      <button class="ico" id="sg-back" aria-label="Back">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="ttl">Create account</div>
+    </div>
+    <div class="scroll"><div class="pad narrow">
+      <div class="dots"><i class="on"></i><i></i><i></i></div>
+
+      <div class="step on" data-step="0">
+        <h1 class="h1">What's your email?</h1>
+        <p class="muted" style="margin:0 0 20px">You'll use this to log back in. Nobody else sees it.</p>
+        <input class="inp" id="sg-email" type="email" autocomplete="email" placeholder="Email" />
+        <input class="inp" id="sg-pass" type="password" autocomplete="new-password" placeholder="Password (6+ characters)" />
+        <div class="hint bad" id="sg-e0"></div>
+        <button class="btn" id="sg-n0">Continue</button>
+      </div>
+
+      <div class="step" data-step="1">
+        <h1 class="h1">What should we call you?</h1>
+        <p class="muted" style="margin:0 0 20px">Your friends see this name on every message.</p>
+        <input class="inp" id="sg-name" placeholder="Your name" maxlength="30" autocomplete="name" />
+        <div class="hint bad" id="sg-e1"></div>
+        <button class="btn" id="sg-n1">Continue</button>
+      </div>
+
+      <div class="step" data-step="2">
+        <h1 class="h1">Pick a username</h1>
+        <p class="muted" style="margin:0 0 20px">This is how people add you. It can't be changed later.</p>
+        <div class="inpwrap"><span class="at">@</span>
+          <input class="inp" id="sg-user" placeholder="username" maxlength="20"
+                 autocomplete="off" spellcheck="false" autocapitalize="off" /></div>
+        <div class="hint" id="sg-hint"></div>
+        <button class="btn" id="sg-done">Create my account</button>
+        <div class="hint bad" id="sg-e2" style="text-align:center"></div>
+      </div>
     </div></div>
   </section>
 
   <!-- ============ FINISH SETUP ============ -->
   <section id="s-setup" class="screen">
-    <div class="scroll"><div class="pad" style="padding-top:44px">
-      <h1 class="h1">Pick a username</h1>
-      <p class="muted" style="margin:0 0 22px">This is how friends find you.</p>
+    <div class="scroll"><div class="pad narrow" style="padding-top:8vh">
+      <h1 class="h1">Finish your profile</h1>
+      <p class="muted" style="margin:0 0 22px">Your account exists — it just needs a name and a handle.</p>
       <input class="inp" id="su-name" placeholder="Your name" maxlength="30" />
       <div class="inpwrap"><span class="at">@</span>
         <input class="inp" id="su-user" placeholder="username" maxlength="20" spellcheck="false" autocapitalize="off" /></div>
       <div class="hint" id="su-hint"></div>
-      <button class="btn" id="su-go" style="margin-top:10px">Finish</button>
+      <button class="btn" id="su-go" style="margin-top:8px">Finish</button>
       <button class="btn grey" id="su-out" style="margin-top:10px">Sign out</button>
     </div></div>
   </section>
@@ -228,18 +307,19 @@ button.rowitem:hover{background:var(--soft)}
       <div class="empty" id="chats-empty">
         <span class="emoji">💬</span>
         <div class="big">No chats yet</div>
-        Add a friend, or tap + to start a group and share the invite link.
+        Add a friend and a private chat appears here automatically.
       </div>
     </div>
 
     <div class="scroll" id="tab-friends" style="display:none"><div class="pad">
-      <p class="lbl">Add by username</p>
+      <p class="lbl">Add someone</p>
       <div class="row">
         <div class="inpwrap" style="flex:1;margin:0"><span class="at">@</span>
-          <input class="inp" id="f-search" placeholder="username" spellcheck="false" autocapitalize="off" /></div>
-        <button class="btn sm" id="f-add" style="padding:14px 18px">Add</button>
+          <input class="inp" id="f-search" placeholder="their username" spellcheck="false" autocapitalize="off" /></div>
+        <button class="btn sm" id="f-find" style="padding:14px 18px">Find</button>
       </div>
       <div class="hint" id="f-hint"></div>
+      <div id="f-result"></div>
 
       <div id="req-wrap" style="display:none;margin-top:24px">
         <p class="lbl">Requests</p>
@@ -249,7 +329,7 @@ button.rowitem:hover{background:var(--soft)}
       <p class="lbl" style="margin-top:24px">Friends</p>
       <div id="friendlist"></div>
       <div class="empty" id="friends-empty" style="padding:22px 6px">
-        Nobody yet. Share your link and they land straight on your profile.
+        Nobody yet. Send your link and they land straight on your profile.
       </div>
       <button class="btn grey" id="f-invite" style="margin-top:14px">Copy my invite link</button>
     </div></div>
@@ -257,10 +337,10 @@ button.rowitem:hover{background:var(--soft)}
     <div class="scroll" id="tab-me" style="display:none"><div class="pad">
       <div style="display:flex;flex-direction:column;align-items:center;padding:8px 0 20px">
         <button id="me-avbtn" style="position:relative">
-          <div class="av av-96" id="me-av"></div>
-          <span style="position:absolute;right:-2px;bottom:-2px;background:var(--brand);color:#fff;
-            width:32px;height:32px;border-radius:50%;display:grid;place-items:center;border:3px solid #fff">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <div class="av av-104" id="me-av"></div>
+          <span style="position:absolute;right:0;bottom:0;background:var(--brand);color:#fff;
+            width:34px;height:34px;border-radius:50%;display:grid;place-items:center;border:3px solid #fff">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
           </span>
         </button>
         <input type="file" id="me-file" accept="image/*" hidden />
@@ -311,7 +391,7 @@ button.rowitem:hover{background:var(--soft)}
   <!-- ============ CHAT ============ -->
   <section id="s-chat" class="screen">
     <div class="top">
-      <button class="ico" id="c-back" aria-label="Back">
+      <button class="ico backbtn" id="c-back" aria-label="Back">
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
       </button>
       <div class="av av-34" id="c-av"></div>
@@ -325,8 +405,11 @@ button.rowitem:hover{background:var(--soft)}
     </div>
     <div id="log"></div>
     <div class="bar">
+      <button class="circ snap" id="c-snap" aria-label="Send a photo">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.6"/></svg>
+      </button>
       <input class="inp" id="c-text" placeholder="Message" maxlength="2000" autocomplete="off" />
-      <button class="send" id="c-send" disabled aria-label="Send">
+      <button class="circ send" id="c-send" disabled aria-label="Send">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg>
       </button>
     </div>
@@ -351,11 +434,64 @@ button.rowitem:hover{background:var(--soft)}
     </div></div>
   </section>
 
+  <!-- ============ CAMERA ============ -->
+  <section id="s-cam" class="screen">
+    <div class="top">
+      <button class="ico" id="cam-close" aria-label="Close">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="ttl">Camera</div>
+    </div>
+    <div class="stage"><video id="cam" playsinline muted autoplay></video></div>
+    <div class="camrow">
+      <button class="camico" id="cam-pick" aria-label="Choose a photo">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 16l5-5 4 4 3-3 6 6"/></svg>
+      </button>
+      <button class="shutter" id="cam-shot" aria-label="Take photo"></button>
+      <button class="camico" id="cam-flip" aria-label="Flip camera">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+      </button>
+    </div>
+    <input type="file" id="cam-file" accept="image/*" hidden />
+  </section>
+
+  <!-- ============ PHOTO EDITOR ============ -->
+  <section id="s-edit" class="screen">
+    <div class="top">
+      <button class="ico" id="ed-back" aria-label="Back">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="ttl" id="ed-title">Draw on it</div>
+      <button class="ico" id="ed-undo" aria-label="Undo">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-4"/></svg>
+      </button>
+    </div>
+    <div class="stage"><canvas id="ed"></canvas></div>
+    <div class="tools">
+      <div class="swatches" id="swatches"></div>
+      <input class="textin" id="ed-text" placeholder="Type, then tap the photo to place it" maxlength="60" style="display:none" />
+      <div class="toolrow">
+        <button class="tool on" id="t-draw">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+          Draw
+        </button>
+        <button class="tool" id="t-text">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6V4h16v2M12 4v16M9 20h6"/></svg>
+          Text
+        </button>
+        <button class="tool" id="t-send" style="background:var(--brand)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg>
+          Send
+        </button>
+      </div>
+    </div>
+  </section>
+
   <div id="s-placeholder">
     <div style="text-align:center;color:var(--faint);padding:40px">
       <span class="emoji">💬</span>
       <div class="h2" style="color:var(--dim)">Pick a chat</div>
-      <div class="sm" style="margin-top:4px">Or start a group with the + button.</div>
+      <div class="sm" style="margin-top:4px">Or hit + to start a group.</div>
     </div>
   </div>
 
@@ -369,6 +505,7 @@ button.rowitem:hover{background:var(--soft)}
     </div>
   </div>
 
+  <div class="lightbox" id="lightbox"><img id="lbimg" alt="" /></div>
   <div class="toast" id="toast"></div>
 </div>
 
@@ -390,7 +527,7 @@ const firebaseConfig = {
   appId: "1:1041704632178:web:83bf1ffe6f69390bba67eb"
 };
 
-/* ===== EDIT ME — joke staff. img can be any image URL, or "" for initials ===== */
+/* ===== EDIT ME — joke staff. img = any image URL, or "" for a coloured initial ===== */
 const STAFF = [
   { name:"Ronald McDonald", role:"Chief Clown Officer", img:"",
     bio:"Joined in 2003. Refuses to use a mouse. Communicates exclusively in balloon animals." },
@@ -402,19 +539,21 @@ const STAFF = [
     bio:"Six foot four. Guards the servers personally. Does not know what a server is." }
 ];
 
+const PENS = ['#FF4B3E','#FFD400','#22C55E','#3B82F6','#A855F7','#FFFFFF','#0B0B0C'];
+
 /* ---------- helpers ---------- */
 const $ = id => document.getElementById(id);
 const AVC = ['#FF4B3E','#2563EB','#7C3AED','#EA8C00','#059669','#DB2777','#0891B2','#65A30D'];
 const avColor = s => { let h=0; for(const c of String(s||'?')) h=(h*31+c.charCodeAt(0))|0;
   return AVC[Math.abs(h)%AVC.length]; };
 function paintAv(el, name, photo){
-  el.textContent = '';
-  if (photo) { el.style.background = 'url("'+photo+'") center/cover no-repeat'; }
+  el.textContent='';
+  if (photo) el.style.background = 'url("'+photo+'") center/cover no-repeat';
   else { el.style.background = avColor(name);
          el.textContent = (String(name||'?').trim()[0]||'?').toUpperCase(); }
 }
 function mkAv(size, name, photo){
-  const d = document.createElement('div'); d.className='av av-'+size; paintAv(d,name,photo); return d;
+  const d=document.createElement('div'); d.className='av av-'+size; paintAv(d,name,photo); return d;
 }
 let tt; function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on');
   clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('on'),2400); }
@@ -432,7 +571,7 @@ const cleanUser = s => String(s||'').trim().toLowerCase().replace(/^@+/,'');
 const okUser = s => /^[a-z0-9_]{3,20}$/.test(s);
 const hashParams = () => new URLSearchParams(location.hash.replace(/^#/,''));
 function busy(btn,on,label){ btn.disabled=on; btn.innerHTML = on ? '<span class="spin"></span>' : label; }
-const ms = t => (t && typeof t.toMillis === 'function') ? t.toMillis() : 0;
+const msOf = t => (t && typeof t.toMillis==='function') ? t.toMillis() : 0;
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -453,46 +592,7 @@ async function getUser(uid){
   userCache.set(uid,u); return u;
 }
 
-/* ================= AUTH ================= */
-let mode='login';
-function setMode(m){
-  mode=m; const s = m==='signup';
-  $('signupOnly').style.display = s?'block':'none';
-  $('a-go').textContent = s?'Create account':'Log in';
-  $('a-pass').autocomplete = s?'new-password':'current-password';
-  $('a-swaptext').textContent = s?'Already have an account?':'New here?';
-  $('a-swap').textContent = s?'Log in':'Create an account';
-  $('a-err').textContent='';
-}
-$('a-swap').onclick = () => setMode(mode==='login'?'signup':'login');
-
-function wireUserCheck(inputId, hintId){
-  let t;
-  $(inputId).addEventListener('input', () => {
-    const v = cleanUser($(inputId).value), h = $(hintId);
-    clearTimeout(t);
-    if (!v){ h.textContent=''; h.className='hint'; return; }
-    if (!okUser(v)){ h.textContent='3–20 characters: letters, numbers, underscore.'; h.className='hint bad'; return; }
-    h.textContent='Checking…'; h.className='hint';
-    t = setTimeout(async () => {
-      try {
-        const s = await getDoc(doc(db,'usernames',v));
-        h.textContent = s.exists() ? '@'+v+' is taken.' : '@'+v+' is free.';
-        h.className = 'hint ' + (s.exists()?'bad':'ok');
-      } catch(e){
-        console.error('username check failed:', e);
-        h.className='hint bad';
-        h.textContent = e.code==='permission-denied'
-          ? 'Firestore rules are blocking the username check.'
-          : 'Could not check that name (' + (e.code||'unknown') + ').';
-      }
-    }, 420);
-  });
-}
-wireUserCheck('a-user','a-userhint');
-wireUserCheck('su-user','su-hint');
-
-const AUTH_ERR = {
+const ERRS = {
   'auth/invalid-credential':"That email and password don't match an account.",
   'auth/wrong-password':'Wrong password.',
   'auth/user-not-found':'No account with that email.',
@@ -503,9 +603,67 @@ const AUTH_ERR = {
   'auth/network-request-failed':'Network problem. Check your connection.',
   'auth/operation-not-allowed':'Enable Email/Password sign-in in the Firebase console.',
   'permission-denied':'Firestore rules are blocking this. Publish the rules, then retry.',
-  'unavailable':'Cannot reach Firestore. Check the project has a database created.',
+  'unavailable':'Cannot reach Firestore right now.',
   'failed-precondition':'Firestore has no database yet — create one in the console.'
 };
+const errText = e => ERRS[e && e.code] || ('Error: ' + ((e && (e.code||e.message)) || 'unknown'));
+
+/* ================= LOGIN ================= */
+$('a-go').onclick = async () => {
+  const email=$('a-email').value.trim(), pw=$('a-pass').value;
+  $('a-err').textContent='';
+  if (!email || !pw){ $('a-err').textContent='Enter your email and password.'; return; }
+  busy($('a-go'), true, 'Log in');
+  try { await signInWithEmailAndPassword(auth, email, pw); }
+  catch(e){ console.error(e); $('a-err').textContent = errText(e); }
+  busy($('a-go'), false, 'Log in');
+};
+['a-email','a-pass'].forEach(id => $(id).addEventListener('keydown', e => { if(e.key==='Enter') $('a-go').click(); }));
+$('to-signup').onclick = () => { goStep(0); show('s-signup'); $('sg-email').focus(); };
+$('sg-back').onclick = () => { if (step>0) goStep(step-1); else show('s-auth'); };
+
+/* ================= SIGN UP (stepped) ================= */
+let step = 0;
+function goStep(n){
+  step = n;
+  document.querySelectorAll('#s-signup .step').forEach(s => s.classList.toggle('on', +s.dataset.step===n));
+  document.querySelectorAll('.dots i').forEach((d,i)=>d.classList.toggle('on', i<=n));
+  const f = ['sg-email','sg-name','sg-user'][n];
+  setTimeout(()=>{ const el=$(f); if(el) el.focus(); }, 60);
+}
+$('sg-n0').onclick = () => {
+  const e=$('sg-email').value.trim(), p=$('sg-pass').value;
+  if (!/.+@.+\..+/.test(e)){ $('sg-e0').textContent='That email doesn\u2019t look right.'; return; }
+  if (p.length<6){ $('sg-e0').textContent='Password needs at least 6 characters.'; return; }
+  $('sg-e0').textContent=''; goStep(1);
+};
+$('sg-n1').onclick = () => {
+  if (!$('sg-name').value.trim()){ $('sg-e1').textContent='Give us something to call you.'; return; }
+  $('sg-e1').textContent=''; goStep(2);
+};
+['sg-email','sg-pass'].forEach(id=>$(id).addEventListener('keydown',e=>{ if(e.key==='Enter') $('sg-n0').click(); }));
+$('sg-name').addEventListener('keydown', e=>{ if(e.key==='Enter') $('sg-n1').click(); });
+$('sg-user').addEventListener('keydown', e=>{ if(e.key==='Enter') $('sg-done').click(); });
+
+function wireUserCheck(inputId, hintId){
+  let t;
+  $(inputId).addEventListener('input', () => {
+    const v=cleanUser($(inputId).value), h=$(hintId);
+    clearTimeout(t);
+    if (!v){ h.textContent=''; h.className='hint'; return; }
+    if (!okUser(v)){ h.textContent='3–20 characters: letters, numbers, underscore.'; h.className='hint bad'; return; }
+    h.textContent='Checking…'; h.className='hint';
+    t=setTimeout(async ()=>{
+      try {
+        const s = await getDoc(doc(db,'usernames',v));
+        h.textContent = s.exists() ? '@'+v+' is taken.' : '@'+v+' is all yours.';
+        h.className = 'hint ' + (s.exists()?'bad':'ok');
+      } catch(e){ console.error(e); h.className='hint bad'; h.textContent=errText(e); }
+    }, 400);
+  });
+}
+wireUserCheck('sg-user','sg-hint');
+wireUserCheck('su-user','su-hint');
 
 async function writeProfile(uid, username, name){
   const batch = writeBatch(db);
@@ -514,36 +672,22 @@ async function writeProfile(uid, username, name){
   await batch.commit();
 }
 
-$('a-go').onclick = async () => {
-  const email=$('a-email').value.trim(), pw=$('a-pass').value;
-  $('a-err').textContent='';
-  if (!email || pw.length<6){ $('a-err').textContent='Enter an email and a password of 6+ characters.'; return; }
-  const label = mode==='signup'?'Create account':'Log in';
-  busy($('a-go'), true, label);
+$('sg-done').onclick = async () => {
+  const uname=cleanUser($('sg-user').value);
+  if (!okUser(uname)){ $('sg-e2').textContent='Pick a username first.'; return; }
+  $('sg-e2').textContent='';
+  busy($('sg-done'), true, 'Create my account');
   try {
-    if (mode==='signup'){
-      const uname=cleanUser($('a-user').value), name=$('a-name').value.trim().slice(0,30);
-      if (!name) throw {code:'noname'};
-      if (!okUser(uname)) throw {code:'baduser'};
-      const taken = await getDoc(doc(db,'usernames',uname));
-      if (taken.exists()) throw {code:'taken'};
-      const cred = await createUserWithEmailAndPassword(auth, email, pw);
-      await writeProfile(cred.user.uid, uname, name);
-    } else {
-      await signInWithEmailAndPassword(auth, email, pw);
-    }
+    const taken = await getDoc(doc(db,'usernames',uname));
+    if (taken.exists()) throw {code:'taken'};
+    const cred = await createUserWithEmailAndPassword(auth, $('sg-email').value.trim(), $('sg-pass').value);
+    await writeProfile(cred.user.uid, uname, $('sg-name').value.trim().slice(0,30));
   } catch(e){
-    $('a-err').textContent =
-      e.code==='noname' ? 'What should people call you?' :
-      e.code==='baduser' ? 'Pick a username: 3–20 letters, numbers or underscore.' :
-      e.code==='taken' ? 'That username just got taken.' :
-      (AUTH_ERR[e.code] || ('Error: ' + (e.code || e.message || 'unknown')));
-    if (!AUTH_ERR[e.code]) console.error('OpenCase signup/login failure:', e);
+    console.error(e);
+    $('sg-e2').textContent = e.code==='taken' ? 'That username just got taken.' : errText(e);
   }
-  busy($('a-go'), false, label);
+  busy($('sg-done'), false, 'Create my account');
 };
-['a-email','a-pass','a-name','a-user'].forEach(id =>
-  $(id).addEventListener('keydown', e => { if(e.key==='Enter') $('a-go').click(); }));
 
 $('su-go').onclick = async () => {
   const uname=cleanUser($('su-user').value), name=$('su-name').value.trim().slice(0,30);
@@ -552,9 +696,9 @@ $('su-go').onclick = async () => {
   busy($('su-go'), true, 'Finish');
   try {
     const taken = await getDoc(doc(db,'usernames',uname));
-    if (taken.exists()){ toast('@'+uname+' is taken'); }
+    if (taken.exists()) toast('@'+uname+' is taken');
     else { await writeProfile(me.uid, uname, name); profile=null; await afterProfile(); }
-  } catch(e){ console.error(e); toast('Could not save that'); }
+  } catch(e){ console.error(e); toast(errText(e)); }
   busy($('su-go'), false, 'Finish');
 };
 $('su-out').onclick = () => signOut(auth);
@@ -563,11 +707,15 @@ $('su-out').onclick = () => signOut(auth);
 onAuthStateChanged(auth, async u => {
   detach();
   me = u;
-  if (!u){ profile=null; userCache.clear();
-    document.getElementById('app').classList.remove('in');
-    show('s-auth'); inviteBanner(); return; }
-  const s = await getDoc(doc(db,'users',u.uid));
-  if (!s.exists()){ document.getElementById('app').classList.remove('in'); show('s-setup'); return; }
+  if (!u){
+    profile=null; userCache.clear();
+    $('app').classList.remove('in');
+    show('s-auth'); inviteBanner(); return;
+  }
+  let s;
+  try { s = await getDoc(doc(db,'users',u.uid)); }
+  catch(e){ console.error(e); toast(errText(e)); return; }
+  if (!s.exists()){ $('app').classList.remove('in'); show('s-setup'); return; }
   profile = Object.assign({uid:u.uid}, s.data());
   userCache.set(u.uid, profile);
   await afterProfile();
@@ -586,7 +734,7 @@ async function afterProfile(){
     profile = Object.assign({uid:me.uid}, s.data());
     userCache.set(me.uid, profile);
   }
-  document.getElementById('app').classList.add('in');
+  $('app').classList.add('in');
   paintMe(); watchChats(); watchFriends(); watchReqs();
   show('s-main'); setTab('chats');
   await consumeHash();
@@ -604,7 +752,6 @@ async function inviteBanner(){
     $('inv-name').textContent = u.name + ' (@' + u.username + ')';
     $('invitedby').style.display='flex';
     $('authblurb').textContent = 'Make an account and you two are connected straight away.';
-    setMode('signup');
   } catch(e){}
 }
 
@@ -617,7 +764,7 @@ async function consumeHash(){
     try {
       const s = await getDoc(doc(db,'usernames',inviter));
       if (s.exists()){ await sendRequest(s.data().uid); toast('Friend request sent to @'+inviter); }
-    } catch(e){}
+    } catch(e){ console.error(e); }
   }
   if (join){
     try {
@@ -640,7 +787,7 @@ $('nav').addEventListener('click', e => {
 });
 function setTab(t){
   ['chats','friends','me','staff'].forEach(k => $('tab-'+k).style.display = k===t?'block':'none');
-  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.tab===t));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on', b.dataset.tab===t));
   $('m-title').textContent = {chats:'Chats',friends:'Friends',me:'Me',staff:'Staff'}[t];
   $('m-action').style.display = t==='chats'?'grid':'none';
   if (t==='staff') paintStaff();
@@ -654,24 +801,24 @@ function watchChats(){
   const q = query(collection(db,'chats'), where('memberIds','array-contains', me.uid));
   unsubChats = onSnapshot(q, async snap => {
     chats = snap.docs.map(d => Object.assign({id:d.id}, d.data()));
-    chats.sort((a,b) => ms(b.lastAt) - ms(a.lastAt));
+    chats.sort((a,b)=>msOf(b.lastAt)-msOf(a.lastAt));
     await paintChats();
-  }, e => { console.error(e); toast('Could not load chats'); });
+  }, e => { console.error(e); toast(errText(e)); });
 }
 
 async function paintChats(){
-  const box = $('chatlist'); box.innerHTML='';
-  $('chats-empty').style.display = chats.length ? 'none':'block';
+  const box=$('chatlist'); box.innerHTML='';
+  $('chats-empty').style.display = chats.length?'none':'block';
   for (const c of chats){
     const face = await chatFace(c);
-    const b = document.createElement('button'); b.className='rowitem';
+    const b=document.createElement('button'); b.className='rowitem';
     b.appendChild(mkAv(52, face.name, face.photo));
     const mid=document.createElement('div'); mid.className='mid';
     const nm=document.createElement('div'); nm.className='nm'; nm.textContent=face.name;
     const ds=document.createElement('div'); ds.className='ds';
     ds.textContent = c.lastMessage || (c.type==='group'?'New group':'Say hi');
     mid.append(nm,ds);
-    const rt=document.createElement('div'); rt.className='rt'; rt.textContent = when(ms(c.lastAt));
+    const rt=document.createElement('div'); rt.className='rt'; rt.textContent=when(msOf(c.lastAt));
     b.append(mid,rt);
     b.onclick = () => enterChat(c.id);
     box.appendChild(b);
@@ -679,8 +826,8 @@ async function paintChats(){
 }
 
 async function chatFace(c){
-  if (c.type==='group') return { name: c.name || 'Group', photo: c.photo || '' };
-  const other = (c.memberIds||[]).find(x => x !== me.uid);
+  if (c.type==='group') return { name:c.name||'Group', photo:c.photo||'' };
+  const other = (c.memberIds||[]).find(x=>x!==me.uid);
   if (!other) return { name:'Saved messages', photo:'' };
   const u = await getUser(other);
   return { name: u.name || ('@'+u.username), photo: u.photo || '' };
@@ -688,16 +835,18 @@ async function chatFace(c){
 
 const dmId = (a,b) => [a,b].sort().join('__');
 
-async function openDM(otherUid){
+async function ensureDM(otherUid){
   const id = dmId(me.uid, otherUid), ref = doc(db,'chats',id);
-  try {
-    const s = await getDoc(ref);
-    if (!s.exists()){
-      await setDoc(ref, { type:'dm', memberIds:[me.uid,otherUid], createdAt:serverTimestamp(),
-                          lastMessage:'', lastAt:serverTimestamp() });
-    }
-    enterChat(id);
-  } catch(e){ console.error(e); toast('Could not open that chat'); }
+  const s = await getDoc(ref);
+  if (!s.exists()){
+    await setDoc(ref, { type:'dm', memberIds:[me.uid,otherUid], createdAt:serverTimestamp(),
+                        lastMessage:'', lastAt:serverTimestamp() });
+  }
+  return id;
+}
+async function openDM(otherUid){
+  try { enterChat(await ensureDM(otherUid)); }
+  catch(e){ console.error(e); toast(errText(e)); }
 }
 
 async function enterChat(id){
@@ -705,31 +854,26 @@ async function enterChat(id){
     const s = await getDoc(doc(db,'chats',id));
     if (!s.exists()){ toast('That chat is gone'); return; }
     openChat = Object.assign({id}, s.data());
-  } catch(e){ toast('Could not open that chat'); return; }
+  } catch(e){ console.error(e); toast(errText(e)); return; }
   const face = await chatFace(openChat);
   $('c-title').textContent = face.name;
   paintAv($('c-av'), face.name, face.photo);
-  $('c-sub').textContent = openChat.type==='group'
-    ? (openChat.memberIds||[]).length + ' members' : '';
+  $('c-sub').textContent = openChat.type==='group' ? (openChat.memberIds||[]).length+' members' : '';
   $('log').innerHTML=''; seenMsg.clear(); lastSender=null;
   $('c-text').value=''; $('c-send').disabled=true;
   show('s-chat'); watchMsgs(id);
   setTimeout(()=>$('c-text').focus(), 60);
 }
-$('c-back').onclick = () => {
-  if (unsubMsgs) unsubMsgs();
-  unsubMsgs=null; openChat=null; show('s-main');
-};
+$('c-back').onclick = () => { if(unsubMsgs) unsubMsgs(); unsubMsgs=null; openChat=null; show('s-main'); };
 
 function watchMsgs(id){
   if (unsubMsgs) unsubMsgs();
-  const q = query(collection(db,'chats',id,'messages'), orderBy('at'), limit(300));
+  const q = query(collection(db,'chats',id,'messages'), orderBy('at'), limit(200));
   unsubMsgs = onSnapshot(q, async snap => {
-    const log = $('log');
+    const log=$('log');
     for (const ch of snap.docChanges()){
       if (ch.type==='removed'){
-        const el = log.querySelector('[data-id="'+ch.doc.id+'"]');
-        if (el) el.remove();
+        const el=log.querySelector('[data-id="'+ch.doc.id+'"]'); if(el) el.remove();
         seenMsg.delete(ch.doc.id); continue;
       }
       if (seenMsg.has(ch.doc.id)) continue;
@@ -737,133 +881,264 @@ function watchMsgs(id){
       log.appendChild(await mkMsg(ch.doc.id, ch.doc.data()));
     }
     log.scrollTop = log.scrollHeight;
-  }, e => { console.error(e); toast('Could not load messages'); });
+  }, e => { console.error(e); toast(errText(e)); });
 }
 
 async function mkMsg(id, m){
-  const mine = m.uid === me.uid;
+  const mine = m.uid===me.uid;
   const u = mine ? profile : await getUser(m.uid);
   const key = mine ? '\u0000me' : m.uid;
   const first = key !== lastSender;
   lastSender = key;
 
-  const wrap = document.createElement('div'); wrap.dataset.id = id;
+  const wrap=document.createElement('div'); wrap.dataset.id=id;
   if (first && !mine && openChat && openChat.type==='group'){
     const n=document.createElement('div'); n.className='gname';
     n.textContent = u.name || ('@'+u.username);
     wrap.appendChild(n);
   }
-  const line = document.createElement('div');
-  line.className = 'mline'+(mine?' mine':'')+(first?' first':'');
+  const line=document.createElement('div');
+  line.className='mline'+(mine?' mine':'')+(first?' first':'');
   line.appendChild(mkAv(28, u.name||u.username, u.photo));
-  const bub = document.createElement('div'); bub.className='bub';
-  bub.textContent = m.text || '';
+  const bub=document.createElement('div'); bub.className='bub';
+  if (m.img){
+    bub.classList.add('photo');
+    const img=document.createElement('img'); img.src=m.img; img.alt='Photo';
+    img.onclick = () => { $('lbimg').src=m.img; $('lightbox').classList.add('on'); };
+    bub.appendChild(img);
+  } else {
+    bub.textContent = m.text || '';
+  }
   line.appendChild(bub); wrap.appendChild(line);
   return wrap;
 }
+$('lightbox').onclick = () => $('lightbox').classList.remove('on');
 
-$('c-text').addEventListener('input', () => { $('c-send').disabled = !$('c-text').value.trim(); });
-$('c-text').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); sendMsg(); } });
+$('c-text').addEventListener('input', ()=>{ $('c-send').disabled = !$('c-text').value.trim(); });
+$('c-text').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); sendMsg(); } });
 $('c-send').onclick = sendMsg;
 
-async function sendMsg(){
-  const text = $('c-text').value.trim();
-  if (!text || !openChat) return;
+async function pushMessage(payload, preview){
+  if (!openChat) return;
   const chatId = openChat.id;
+  await addDoc(collection(db,'chats',chatId,'messages'),
+    Object.assign({ uid: me.uid, at: serverTimestamp() }, payload));
+  await updateDoc(doc(db,'chats',chatId), {
+    lastMessage: (profile.name ? profile.name.split(' ')[0]+': ' : '') + preview,
+    lastAt: serverTimestamp()
+  });
+}
+
+async function sendMsg(){
+  const text=$('c-text').value.trim();
+  if (!text || !openChat) return;
   $('c-text').value=''; $('c-send').disabled=true;
-  try {
-    await addDoc(collection(db,'chats',chatId,'messages'),
-      { uid: me.uid, text, at: serverTimestamp() });
-    await updateDoc(doc(db,'chats',chatId), {
-      lastMessage: (profile.name ? profile.name.split(' ')[0]+': ' : '') + text.slice(0,60),
-      lastAt: serverTimestamp()
-    });
-  } catch(e){
-    console.error(e); toast('Message failed to send');
-    $('c-text').value = text; $('c-send').disabled = false;
-  }
+  try { await pushMessage({ text }, text.slice(0,60)); }
+  catch(e){ console.error(e); toast(errText(e)); $('c-text').value=text; $('c-send').disabled=false; }
   $('c-text').focus();
 }
 
-/* ---------- chat details sheet ---------- */
-$('c-info').onclick = async () => {
-  if (!openChat) return;
-  const body = $('sheetbody'); body.innerHTML='';
-  const face = await chatFace(openChat);
-  const head = document.createElement('div');
-  head.style.cssText='display:flex;align-items:center;gap:13px;margin-bottom:18px';
-  head.appendChild(mkAv(52, face.name, face.photo));
-  const t = document.createElement('div');
-  const tn = document.createElement('div'); tn.className='h2'; tn.textContent=face.name;
-  const ts = document.createElement('div'); ts.className='sm muted';
-  ts.textContent = openChat.type==='group'
-    ? (openChat.memberIds||[]).length+' members' : 'Direct message';
-  t.append(tn,ts); head.appendChild(t); body.appendChild(head);
+/* ================= CAMERA ================= */
+let camStream=null, facing='environment', backTo='s-chat';
 
-  if (openChat.type==='group'){
-    const p=document.createElement('p'); p.className='lbl'; p.textContent='Invite link';
-    const box=document.createElement('div'); box.className='card sm';
-    box.style.cssText='word-break:break-all;color:var(--dim)';
-    box.textContent = groupLink(openChat.id);
-    const btn=document.createElement('button'); btn.className='btn'; btn.textContent='Copy invite link';
-    btn.onclick = () => copy(groupLink(openChat.id),'Invite link copied');
-    body.append(p,box,btn);
+$('c-snap').onclick = () => openCamera();
+$('cam-close').onclick = () => { stopCam(); show(backTo); };
+$('cam-flip').onclick = () => { facing = facing==='environment' ? 'user' : 'environment'; startCam(); };
+$('cam-pick').onclick = () => $('cam-file').click();
 
-    const pl=document.createElement('p'); pl.className='lbl'; pl.style.marginTop='22px';
-    pl.textContent='Members'; body.appendChild(pl);
-    for (const uid of (openChat.memberIds||[])){
-      const u = await getUser(uid);
-      const r=document.createElement('div'); r.className='rowitem'; r.style.padding='9px 0';
-      r.appendChild(mkAv(42, u.name||u.username, u.photo));
-      const mid=document.createElement('div'); mid.className='mid';
-      const nm=document.createElement('div'); nm.className='nm'; nm.textContent=u.name||'Unknown';
-      const ds=document.createElement('div'); ds.className='ds'; ds.textContent='@'+(u.username||'unknown');
-      mid.append(nm,ds); r.appendChild(mid); body.appendChild(r);
-    }
-  }
-  $('sheet').classList.add('on');
-};
-$('sheetclose').onclick = () => $('sheet').classList.remove('on');
-$('sheet').addEventListener('click', e => { if (e.target===$('sheet')) $('sheet').classList.remove('on'); });
-
-const baseUrl = () => location.origin + location.pathname;
-const groupLink = id => baseUrl() + '#j=' + id;
-const myLink = () => baseUrl() + '#i=' + (profile ? profile.username : '');
-async function copy(text,msg){
-  try { await navigator.clipboard.writeText(text); toast(msg); }
-  catch { prompt('Copy this:', text); }
+async function openCamera(){
+  backTo = 's-chat';
+  show('s-cam');
+  await startCam();
 }
+async function startCam(){
+  stopCam();
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode: facing }, audio:false });
+    $('cam').srcObject = camStream;
+  } catch(e){
+    console.error(e);
+    toast('No camera available — pick a photo instead');
+    $('cam-file').click();
+  }
+}
+function stopCam(){
+  if (camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
+  $('cam').srcObject = null;
+}
+$('cam-shot').onclick = () => {
+  const v=$('cam');
+  if (!v.videoWidth){ toast('Camera is still warming up'); return; }
+  const c=document.createElement('canvas');
+  const scale = Math.min(1, 1080 / Math.max(v.videoWidth, v.videoHeight));
+  c.width = Math.round(v.videoWidth*scale); c.height = Math.round(v.videoHeight*scale);
+  const ctx=c.getContext('2d');
+  if (facing==='user'){ ctx.translate(c.width,0); ctx.scale(-1,1); }
+  ctx.drawImage(v,0,0,c.width,c.height);
+  stopCam();
+  openEditor(c.toDataURL('image/jpeg',0.85));
+};
+$('cam-file').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0];
+  e.target.value='';
+  if (!f) return;
+  const fr=new FileReader();
+  fr.onload = () => { stopCam(); openEditor(fr.result); };
+  fr.readAsDataURL(f);
+});
+
+/* ================= PHOTO EDITOR ================= */
+let edCtx=null, edMode='draw', edColor=PENS[0], undoStack=[];
+
+(function buildSwatches(){
+  const box=$('swatches');
+  PENS.forEach((c,i)=>{
+    const b=document.createElement('button');
+    b.className='sw'+(i===0?' on':''); b.style.background=c;
+    b.setAttribute('aria-label','Colour '+c);
+    b.onclick = () => {
+      edColor=c;
+      document.querySelectorAll('.sw').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+    };
+    box.appendChild(b);
+  });
+})();
+
+function openEditor(dataUrl){
+  const img=new Image();
+  img.onload = () => {
+    const c=$('ed');
+    const scale = Math.min(1, 1080/Math.max(img.width,img.height));
+    c.width = Math.round(img.width*scale);
+    c.height = Math.round(img.height*scale);
+    edCtx = c.getContext('2d');
+    edCtx.drawImage(img,0,0,c.width,c.height);
+    undoStack = [c.toDataURL('image/jpeg',0.9)];
+    setMode('draw');
+    show('s-edit');
+  };
+  img.onerror = () => toast('Could not load that image');
+  img.src = dataUrl;
+}
+
+function setMode(m){
+  edMode=m;
+  $('t-draw').classList.toggle('on', m==='draw');
+  $('t-text').classList.toggle('on', m==='text');
+  $('ed-text').style.display = m==='text' ? 'block' : 'none';
+  $('ed-title').textContent = m==='text' ? 'Tap to place text' : 'Draw on it';
+  if (m==='text') setTimeout(()=>$('ed-text').focus(), 60);
+}
+$('t-draw').onclick = () => setMode('draw');
+$('t-text').onclick = () => setMode('text');
+$('ed-back').onclick = () => { undoStack=[]; show('s-chat'); };
+
+function pushUndo(){
+  undoStack.push($('ed').toDataURL('image/jpeg',0.9));
+  if (undoStack.length>10) undoStack.shift();
+}
+$('ed-undo').onclick = () => {
+  if (undoStack.length<2){ toast('Nothing to undo'); return; }
+  undoStack.pop();
+  const img=new Image();
+  img.onload = () => { edCtx.clearRect(0,0,$('ed').width,$('ed').height); edCtx.drawImage(img,0,0); };
+  img.src = undoStack[undoStack.length-1];
+};
+
+function edPoint(e){
+  const c=$('ed'), r=c.getBoundingClientRect();
+  return { x:(e.clientX-r.left)*(c.width/r.width), y:(e.clientY-r.top)*(c.height/r.height) };
+}
+
+let drawing=false;
+$('ed').addEventListener('pointerdown', e => {
+  if (!edCtx) return;
+  const p = edPoint(e);
+  if (edMode==='text'){
+    const txt = $('ed-text').value.trim();
+    if (!txt){ toast('Type something first'); return; }
+    pushUndo();
+    const size = Math.max(22, Math.round($('ed').width/16));
+    edCtx.font = '800 '+size+"px Nunito, sans-serif";
+    edCtx.textAlign='center'; edCtx.textBaseline='middle';
+    edCtx.lineWidth = Math.max(4, size/6);
+    edCtx.strokeStyle = 'rgba(0,0,0,.55)';
+    edCtx.lineJoin='round';
+    edCtx.strokeText(txt, p.x, p.y);
+    edCtx.fillStyle = edColor;
+    edCtx.fillText(txt, p.x, p.y);
+    return;
+  }
+  pushUndo();
+  drawing=true;
+  $('ed').setPointerCapture(e.pointerId);
+  edCtx.beginPath();
+  edCtx.moveTo(p.x,p.y);
+  edCtx.lineCap='round'; edCtx.lineJoin='round';
+  edCtx.strokeStyle=edColor;
+  edCtx.lineWidth=Math.max(4, $('ed').width/110);
+});
+$('ed').addEventListener('pointermove', e => {
+  if (!drawing || !edCtx) return;
+  const p=edPoint(e);
+  edCtx.lineTo(p.x,p.y);
+  edCtx.stroke();
+});
+['pointerup','pointercancel','pointerleave'].forEach(ev =>
+  $('ed').addEventListener(ev, () => { drawing=false; }));
+
+$('t-send').onclick = async () => {
+  if (!edCtx || !openChat) return;
+  const c=$('ed');
+  let q=0.7, data=c.toDataURL('image/jpeg',q);
+  while (data.length > 500000 && q > 0.35){ q -= 0.12; data = c.toDataURL('image/jpeg', q); }
+  if (data.length > 700000){ toast('That photo is too big to send'); return; }
+  const btn=$('t-send'); btn.disabled=true;
+  try {
+    await pushMessage({ img:data }, '\uD83D\uDCF7 Photo');
+    undoStack=[];
+    show('s-chat');
+  } catch(e){ console.error(e); toast(errText(e)); }
+  btn.disabled=false;
+};
 
 /* ================= FRIENDS ================= */
 function watchFriends(){
   unsubFriends = onSnapshot(collection(db,'users',me.uid,'friends'), async snap => {
-    const list = [];
+    const list=[];
     for (const d of snap.docs) list.push(await getUser(d.id));
     list.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
-    friends = list; paintFriends();
+    friends=list; paintFriends();
+    for (const f of list){ try { await ensureDM(f.uid); } catch(e){} }
   }, e => console.error(e));
 }
 function watchReqs(){
   unsubReqs = onSnapshot(collection(db,'users',me.uid,'requests'), async snap => {
-    const list = [];
+    const list=[];
     for (const d of snap.docs) list.push(await getUser(d.id));
-    reqs = list; paintReqs();
+    reqs=list; paintReqs();
   }, e => console.error(e));
+}
+
+function friendRow(u, actions){
+  const r=document.createElement('div'); r.className='rowitem'; r.style.padding='10px 0';
+  r.appendChild(mkAv(42, u.name||u.username, u.photo));
+  const mid=document.createElement('div'); mid.className='mid';
+  const nm=document.createElement('div'); nm.className='nm'; nm.textContent=u.name||'Unknown';
+  const ds=document.createElement('div'); ds.className='ds'; ds.textContent='@'+u.username;
+  mid.append(nm,ds); r.appendChild(mid);
+  (actions||[]).forEach(a=>r.appendChild(a));
+  return r;
 }
 
 function paintFriends(){
   const box=$('friendlist'); box.innerHTML='';
   $('friends-empty').style.display = friends.length?'none':'block';
-  friends.forEach(u => {
-    const r=document.createElement('div'); r.className='rowitem'; r.style.padding='10px 0';
-    r.appendChild(mkAv(42, u.name||u.username, u.photo));
-    const mid=document.createElement('div'); mid.className='mid';
-    const nm=document.createElement('div'); nm.className='nm'; nm.textContent=u.name||'Unknown';
-    const ds=document.createElement('div'); ds.className='ds'; ds.textContent='@'+u.username;
-    mid.append(nm,ds);
+  friends.forEach(u=>{
     const b=document.createElement('button'); b.className='btn grey sm'; b.textContent='Message';
     b.onclick = () => openDM(u.uid);
-    r.append(mid,b); box.appendChild(r);
+    box.appendChild(friendRow(u,[b]));
   });
 }
 
@@ -871,69 +1146,72 @@ function paintReqs(){
   $('req-wrap').style.display = reqs.length?'block':'none';
   $('reqdot').classList.toggle('on', reqs.length>0);
   const box=$('reqlist'); box.innerHTML='';
-  reqs.forEach(u => {
-    const r=document.createElement('div'); r.className='rowitem'; r.style.padding='10px 0';
-    r.appendChild(mkAv(42, u.name||u.username, u.photo));
-    const mid=document.createElement('div'); mid.className='mid';
-    const nm=document.createElement('div'); nm.className='nm'; nm.textContent=u.name||'Unknown';
-    const ds=document.createElement('div'); ds.className='ds'; ds.textContent='@'+u.username;
-    mid.append(nm,ds);
+  reqs.forEach(u=>{
     const ok=document.createElement('button'); ok.className='btn sm'; ok.textContent='Accept';
     ok.onclick = () => acceptReq(u.uid);
     const no=document.createElement('button'); no.className='btn grey sm'; no.textContent='✕';
     no.onclick = () => deleteDoc(doc(db,'users',me.uid,'requests',u.uid)).catch(()=>{});
-    r.append(mid,ok,no); box.appendChild(r);
+    box.appendChild(friendRow(u,[ok,no]));
   });
 }
 
 async function sendRequest(uid){
-  if (uid === me.uid) throw new Error('self');
+  if (uid===me.uid) throw new Error('self');
   await setDoc(doc(db,'users',uid,'requests',me.uid), { at: serverTimestamp() });
 }
 
 async function acceptReq(uid){
   try {
-    const batch = writeBatch(db);
+    const batch=writeBatch(db);
     batch.set(doc(db,'users',me.uid,'friends',uid), { at: serverTimestamp() });
     batch.set(doc(db,'users',uid,'friends',me.uid), { at: serverTimestamp() });
     batch.delete(doc(db,'users',me.uid,'requests',uid));
     await batch.commit();
-    toast('Friends');
-  } catch(e){ console.error(e); toast('Could not accept that'); }
+    await ensureDM(uid);
+    toast('You\u2019re friends — chat created');
+  } catch(e){ console.error(e); toast(errText(e)); }
 }
 
-$('f-add').onclick = async () => {
-  const uname = cleanUser($('f-search').value), h = $('f-hint');
-  if (!okUser(uname)){ h.className='hint bad'; h.textContent='Enter a valid username.'; return; }
+$('f-find').onclick = async () => {
+  const uname=cleanUser($('f-search').value), h=$('f-hint'), res=$('f-result');
+  res.innerHTML='';
+  if (!okUser(uname)){ h.className='hint bad'; h.textContent='Usernames are 3–20 letters, numbers or underscore.'; return; }
   if (profile && uname===profile.username){ h.className='hint bad'; h.textContent="That's you."; return; }
   h.className='hint'; h.textContent='Looking…';
   try {
     const s = await getDoc(doc(db,'usernames',uname));
-    if (!s.exists()){ h.className='hint bad'; h.textContent='No @'+uname+' here.'; return; }
-    await sendRequest(s.data().uid);
-    h.className='hint ok'; h.textContent='Request sent to @'+uname+'.';
+    if (!s.exists()){ h.className='hint bad'; h.textContent='Nobody here goes by @'+uname+'.'; return; }
+    h.textContent='';
+    const u = await getUser(s.data().uid);
+    const already = friends.some(f=>f.uid===u.uid);
+    const btn=document.createElement('button');
+    btn.className = already ? 'btn grey sm' : 'btn sm';
+    btn.textContent = already ? 'Message' : 'Add friend';
+    btn.onclick = async () => {
+      if (already){ openDM(u.uid); return; }
+      busy(btn, true, 'Add friend');
+      try { await sendRequest(u.uid); btn.className='btn grey sm'; btn.disabled=true; btn.textContent='Request sent'; }
+      catch(e){ console.error(e); toast(errText(e)); busy(btn,false,'Add friend'); }
+    };
+    const card=document.createElement('div'); card.className='card'; card.style.marginTop='6px';
+    card.appendChild(friendRow(u,[btn]));
+    res.appendChild(card);
     $('f-search').value='';
-  } catch(e){ console.error(e); h.className='hint bad'; h.textContent='Could not send that request.'; }
+  } catch(e){ console.error(e); h.className='hint bad'; h.textContent=errText(e); }
 };
-$('f-search').addEventListener('keydown', e => { if(e.key==='Enter') $('f-add').click(); });
+$('f-search').addEventListener('keydown', e=>{ if(e.key==='Enter') $('f-find').click(); });
 $('f-invite').onclick = () => copy(myLink(),'Your invite link is copied');
 
-/* ================= NEW GROUP ================= */
-let picked = new Set();
+/* ================= GROUPS ================= */
+let picked=new Set();
 function paintNewGroup(){
-  picked = new Set();
-  $('n-name').value='';
+  picked=new Set(); $('n-name').value='';
   const box=$('n-friends'); box.innerHTML='';
   $('n-empty').style.display = friends.length?'none':'block';
-  friends.forEach(u => {
-    const r=document.createElement('button'); r.className='rowitem'; r.style.padding='10px 0';
-    r.appendChild(mkAv(42, u.name||u.username, u.photo));
-    const mid=document.createElement('div'); mid.className='mid';
-    const nm=document.createElement('div'); nm.className='nm'; nm.textContent=u.name||'Unknown';
-    const ds=document.createElement('div'); ds.className='ds'; ds.textContent='@'+u.username;
-    mid.append(nm,ds);
+  friends.forEach(u=>{
     const chk=document.createElement('div'); chk.className='chk';
-    r.append(mid,chk);
+    const r=friendRow(u,[chk]);
+    r.style.cursor='pointer';
     r.onclick = () => {
       if (picked.has(u.uid)){ picked.delete(u.uid); chk.style.background=''; chk.style.borderColor='var(--line)'; chk.textContent=''; }
       else { picked.add(u.uid); chk.style.background='var(--brand)'; chk.style.borderColor='var(--brand)'; chk.textContent='✓'; }
@@ -942,7 +1220,7 @@ function paintNewGroup(){
   });
 }
 $('n-go').onclick = async () => {
-  const name = $('n-name').value.trim().slice(0,40);
+  const name=$('n-name').value.trim().slice(0,40);
   if (!name){ toast('Give the group a name'); return; }
   busy($('n-go'), true, 'Create group');
   try {
@@ -953,16 +1231,58 @@ $('n-go').onclick = async () => {
       lastMessage:'', lastAt: serverTimestamp()
     });
     show('s-main'); enterChat(ref.id);
-  } catch(e){ console.error(e); toast('Could not create that group'); }
+  } catch(e){ console.error(e); toast(errText(e)); }
   busy($('n-go'), false, 'Create group');
 };
+
+/* ================= DETAILS SHEET ================= */
+$('c-info').onclick = async () => {
+  if (!openChat) return;
+  const body=$('sheetbody'); body.innerHTML='';
+  const face=await chatFace(openChat);
+  const head=document.createElement('div');
+  head.style.cssText='display:flex;align-items:center;gap:13px;margin-bottom:18px';
+  head.appendChild(mkAv(52, face.name, face.photo));
+  const t=document.createElement('div');
+  const tn=document.createElement('div'); tn.className='h2'; tn.textContent=face.name;
+  const ts=document.createElement('div'); ts.className='sm muted';
+  ts.textContent = openChat.type==='group' ? (openChat.memberIds||[]).length+' members' : 'Private chat';
+  t.append(tn,ts); head.appendChild(t); body.appendChild(head);
+
+  if (openChat.type==='group'){
+    const p=document.createElement('p'); p.className='lbl'; p.textContent='Invite link';
+    const box=document.createElement('div'); box.className='card sm';
+    box.style.cssText='word-break:break-all;color:var(--dim)';
+    box.textContent=groupLink(openChat.id);
+    const btn=document.createElement('button'); btn.className='btn'; btn.textContent='Copy invite link';
+    btn.onclick = () => copy(groupLink(openChat.id),'Invite link copied');
+    body.append(p,box,btn);
+    const pl=document.createElement('p'); pl.className='lbl'; pl.style.marginTop='22px';
+    pl.textContent='Members'; body.appendChild(pl);
+    for (const uid of (openChat.memberIds||[])){
+      const u=await getUser(uid);
+      body.appendChild(friendRow(u,[]));
+    }
+  }
+  $('sheet').classList.add('on');
+};
+$('sheetclose').onclick = () => $('sheet').classList.remove('on');
+$('sheet').addEventListener('click', e=>{ if(e.target===$('sheet')) $('sheet').classList.remove('on'); });
+
+const baseUrl = () => location.origin + location.pathname;
+const groupLink = id => baseUrl()+'#j='+id;
+const myLink = () => baseUrl()+'#i='+(profile?profile.username:'');
+async function copy(text,msg){
+  try { await navigator.clipboard.writeText(text); toast(msg); }
+  catch { prompt('Copy this:', text); }
+}
 
 /* ================= ME ================= */
 function paintMe(){
   if (!profile) return;
   paintAv($('me-av'), profile.name, profile.photo);
   $('me-name').textContent = profile.name || '—';
-  $('me-user').textContent = '@' + profile.username;
+  $('me-user').textContent = '@'+profile.username;
   $('me-namein').value = profile.name || '';
   $('me-link').textContent = myLink();
 }
@@ -970,67 +1290,65 @@ $('me-copy').onclick = () => copy(myLink(),'Invite link copied');
 $('me-out').onclick = () => { detach(); signOut(auth); };
 $('me-avbtn').onclick = () => $('me-file').click();
 
-function squarePhoto(file, size){
-  return new Promise((res, rej) => {
-    const fr = new FileReader();
-    fr.onerror = () => rej(new Error('read'));
-    fr.onload = () => {
-      const img = new Image();
-      img.onerror = () => rej(new Error('decode'));
-      img.onload = () => {
-        const c = document.createElement('canvas');
-        c.width = c.height = size;
-        const ctx = c.getContext('2d');
-        const s = Math.min(img.width, img.height);
-        ctx.drawImage(img, (img.width-s)/2, (img.height-s)/2, s, s, 0, 0, size, size);
-        res(c.toDataURL('image/jpeg', 0.72));
+function squarePhoto(file,size){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onerror=()=>rej(new Error('read'));
+    fr.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>rej(new Error('decode'));
+      img.onload=()=>{
+        const c=document.createElement('canvas'); c.width=c.height=size;
+        const ctx=c.getContext('2d'), s=Math.min(img.width,img.height);
+        ctx.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,size,size);
+        res(c.toDataURL('image/jpeg',0.72));
       };
-      img.src = fr.result;
+      img.src=fr.result;
     };
     fr.readAsDataURL(file);
   });
 }
-
 $('me-file').addEventListener('change', async e => {
-  const file = e.target.files && e.target.files[0];
-  e.target.value = '';
+  const file=e.target.files && e.target.files[0];
+  e.target.value='';
   if (!file) return;
   if (!/^image\//.test(file.type)){ toast('Pick an image file'); return; }
   toast('Resizing…');
   try {
-    const dataUrl = await squarePhoto(file, 192);
-    if (dataUrl.length > 140000){ toast('That image is too heavy — try a smaller one'); return; }
-    await updateDoc(doc(db,'users',me.uid), { photo: dataUrl });
-    profile.photo = dataUrl; userCache.set(me.uid, profile);
+    const dataUrl=await squarePhoto(file,192);
+    if (dataUrl.length>140000){ toast('That image is too heavy — try a smaller one'); return; }
+    await updateDoc(doc(db,'users',me.uid), { photo:dataUrl });
+    profile.photo=dataUrl; userCache.set(me.uid,profile);
     paintMe(); paintChats(); toast('Profile picture updated');
   } catch(err){ console.error(err); toast('Could not use that image'); }
 });
-
 $('me-save').onclick = async () => {
-  const name = $('me-namein').value.trim().slice(0,30);
+  const name=$('me-namein').value.trim().slice(0,30);
   if (!name){ toast('Names cannot be blank'); return; }
   busy($('me-save'), true, 'Save changes');
   try {
     await updateDoc(doc(db,'users',me.uid), { name });
-    profile.name = name; userCache.set(me.uid, profile);
+    profile.name=name; userCache.set(me.uid,profile);
     paintMe(); paintChats(); toast('Saved');
-  } catch(e){ console.error(e); toast('Could not save'); }
+  } catch(e){ console.error(e); toast(errText(e)); }
   busy($('me-save'), false, 'Save changes');
 };
 
 /* ================= STAFF ================= */
 function paintStaff(){
-  const box = $('stafflist');
+  const box=$('stafflist');
   if (box.dataset.done) return;
-  box.dataset.done = '1';
-  STAFF.forEach(p => {
+  box.dataset.done='1';
+  STAFF.forEach(p=>{
     const card=document.createElement('div'); card.className='staff';
-    card.appendChild(mkAv(52, p.name, p.img));
+    const shot=document.createElement('div'); shot.className='shot';
+    if (p.img){ const i=document.createElement('img'); i.src=p.img; i.alt=p.name; shot.appendChild(i); }
+    else { shot.style.background=avColor(p.name); shot.textContent=(p.name[0]||'?').toUpperCase(); }
     const t=document.createElement('div'); t.style.minWidth='0';
     const role=document.createElement('div'); role.className='role'; role.textContent=p.role;
     const nm=document.createElement('div'); nm.className='h2'; nm.textContent=p.name;
     const bio=document.createElement('div'); bio.className='bio'; bio.textContent=p.bio;
-    t.append(role,nm,bio); card.appendChild(t); box.appendChild(card);
+    t.append(role,nm,bio); card.append(shot,t); box.appendChild(card);
   });
 }
 
