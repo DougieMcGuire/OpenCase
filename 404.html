@@ -524,7 +524,6 @@ button.rowitem:hover{background:var(--soft)}
 
     <div class="scroll" id="tab-staff" style="display:none"><div class="pad">
       <h1 class="h1">The team</h1>
-      <p class="muted" style="margin:0 0 20px">Tireless. Underpaid. Entirely fictional.</p>
       <div id="stafflist"></div>
     </div></div>
 
@@ -1995,8 +1994,229 @@ document.addEventListener('keydown', e => {
   }
 });
 
+/* Inside the cloak the top document is about:blank, and its contents were written
+   in rather than served — reloading it would leave a genuinely blank page. So
+   swallow the refresh keys and reload only this frame. */
+document.addEventListener('keydown', e => {
+  const isRefresh = e.key === 'F5' || ((e.ctrlKey || e.metaKey) && (e.key === 'r' || e.key === 'R'));
+  if (!isRefresh) return;
+  let framed = false;
+  try { framed = window.self !== window.top; } catch(err){ framed = true; }
+  if (!framed) return;
+  e.preventDefault();
+  location.reload();
+});
+
 /* keep the typing flag from getting stuck if the tab closes mid-sentence */
 window.addEventListener('beforeunload', () => { try { setTyping(false); } catch(e){} });
+
+/* ================= SITE MASKING =================
+   Local-first. The only network this can ever do is one favicon lookup per
+   site, and only with the toggle on. Applying a disguise never waits on it. */
+const DEFAULT_ICON = window.OC_DEFAULT_ICON;
+const MASK_KEY = 'oc.mask', ICONS_KEY = 'oc.icons', FETCH_KEY = 'oc.iconfetch';
+
+let mask = window.OC_MASK;
+let iconCache = {};
+try { iconCache = JSON.parse(localStorage.getItem(ICONS_KEY) || '{}'); } catch(e){ iconCache = {}; }
+let fetchIcons = localStorage.getItem(FETCH_KEY) !== '0';
+
+const KNOWN = {
+  'classroom.google.com':'Classroom','docs.google.com':'Google Docs','drive.google.com':'Google Drive',
+  'mail.google.com':'Gmail','sheets.google.com':'Google Sheets','slides.google.com':'Google Slides',
+  'calendar.google.com':'Google Calendar','google.com':'Google','wikipedia.org':'Wikipedia',
+  'en.wikipedia.org':'Wikipedia','khanacademy.org':'Khan Academy','quizlet.com':'Quizlet',
+  'canvas.instructure.com':'Canvas','instructure.com':'Canvas','schoology.com':'Schoology',
+  'clever.com':'Clever','desmos.com':'Desmos','powerschool.com':'PowerSchool','ixl.com':'IXL',
+  'office.com':'Office','outlook.com':'Outlook','teams.microsoft.com':'Microsoft Teams',
+  'onedrive.live.com':'OneDrive','zoom.us':'Zoom','duolingo.com':'Duolingo',
+  'nearpod.com':'Nearpod','kahoot.it':'Kahoot!','edpuzzle.com':'Edpuzzle',
+  'weather.com':'Weather','dictionary.com':'Dictionary'
+};
+
+function hostOf(raw){
+  let s = String(raw||'').trim();
+  if (!s) return '';
+  s = s.replace(/^[a-z]+:\/\//i,'').split(/[/?#]/)[0].toLowerCase().replace(/^www\./,'');
+  return /^[a-z0-9.-]+\.[a-z]{2,}$/.test(s) ? s : '';
+}
+function titleFor(host){
+  if (KNOWN[host]) return KNOWN[host];
+  const parts = host.split('.');
+  const base = parts.length > 2 ? parts[0] : parts[0];
+  return base.replace(/[-_]/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+function letterIcon(ch, color){
+  const svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>" +
+    "<text x='32' y='47' font-family='Arial,Helvetica,sans-serif' font-size='54' font-weight='bold' fill='" +
+    (color||'#FF4B3E') + "' text-anchor='middle'>" + ch + "</text></svg>";
+  return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+
+/* <img> loads cross-origin with no CORS handshake — resolve only if it renders */
+function testImage(url, ms){
+  return new Promise(res => {
+    const img = new Image(); let done = false;
+    const fin = ok => { if(!done){ done = true; res(ok ? url : null); } };
+    img.onload  = () => fin(img.naturalWidth > 1 && img.naturalHeight > 1);
+    img.onerror = () => fin(false);
+    setTimeout(() => fin(false), ms || 2500);
+    img.src = url;
+  });
+}
+/* bake it into a data URL if CORS allows, so it never re-fetches */
+function toDataUrl(url){
+  return new Promise(res => {
+    const img = new Image(); img.crossOrigin = 'anonymous';
+    let done = false; const give = v => { if(!done){ done = true; res(v); } };
+    img.onload = () => {
+      try { const c=document.createElement('canvas'); c.width=c.height=64;
+            c.getContext('2d').drawImage(img,0,0,64,64); give(c.toDataURL('image/png')); }
+      catch(e){ give(null); }
+    };
+    img.onerror = () => give(null);
+    setTimeout(() => give(null), 2500);
+    img.src = url;
+  });
+}
+const iconSources = host => [
+  'https://icons.duckduckgo.com/ip3/' + host + '.ico',
+  'https://www.google.com/s2/favicons?sz=64&domain=' + encodeURIComponent(host),
+  'https://' + host + '/favicon.ico'
+];
+
+async function iconFor(host, title){
+  if (iconCache[host]) return iconCache[host];
+  if (!fetchIcons) return null;
+  for (const src of iconSources(host)){
+    const ok = await testImage(src);
+    if (!ok) continue;
+    const keep = (await toDataUrl(ok)) || ok;
+    iconCache[host] = keep;
+    try { localStorage.setItem(ICONS_KEY, JSON.stringify(iconCache)); }
+    catch(e){ iconCache = {}; iconCache[host] = keep;
+              try { localStorage.setItem(ICONS_KEY, JSON.stringify(iconCache)); } catch(e2){} }
+    return keep;
+  }
+  console.warn('no icon source worked for', host);
+  return null;
+}
+
+function saveMask(m){
+  mask = m;
+  try { localStorage.setItem(MASK_KEY, JSON.stringify(m)); } catch(e){}
+  window.OC_APPLY_MASK(m);
+  try { if (window.parent && window.parent !== window) window.OC_APPLY_MASK(m, window.parent.document); } catch(e){}
+  paintMaskPreview();
+  if (typeof badgeTitle === 'function') badgeTitle();
+}
+
+function paintMaskPreview(){
+  const pi = $('mk-picon'), pt = $('mk-ptitle');
+  if (pi) pi.src = mask.icon || DEFAULT_ICON;
+  if (pt) pt.textContent = mask.title;
+  const line = $('me-maskline');
+  if (line) line.textContent = (mask.host && mask.title !== 'OpenCase')
+    ? 'Disguised as ' + mask.title : 'Disguise this tab';
+  document.querySelectorAll('.preset').forEach(el => el.classList.toggle('on', el.dataset.host === mask.host));
+}
+
+/* apply immediately; upgrade the icon whenever it turns up */
+function setMaskNow(host, title){
+  const cached = iconCache[host];
+  saveMask({ title, host, icon: cached || letterIcon(title[0].toUpperCase(), '#FF4B3E') });
+  $('mk-hint').className = 'hint ok';
+  $('mk-hint').textContent = 'This tab is now "' + title + '"' + (cached ? '.' : ' — looking for its icon…');
+  if (cached) return;
+  iconFor(host, title).then(icon => {
+    if (mask.host !== host) return;
+    if (icon){
+      saveMask({ title, host, icon });
+      $('mk-hint').textContent = 'This tab is now "' + title + '", with its real icon.';
+    } else {
+      $('mk-hint').className = 'hint';
+      $('mk-hint').textContent = 'This tab is now "' + title + '". No icon found — using a letter.';
+    }
+  });
+}
+
+function applyHost(raw){
+  const host = hostOf(raw);
+  if (!host){ $('mk-hint').className='hint bad';
+              $('mk-hint').textContent='That does not look like a web address.'; return; }
+  setMaskNow(host, titleFor(host));
+  $('mk-url').value = '';
+}
+
+$('me-mask').onclick = () => setTab('mask');
+$('mk-apply').onclick = () => applyHost($('mk-url').value);
+$('mk-url').addEventListener('keydown', e => { if (e.key==='Enter') $('mk-apply').click(); });
+$('mk-reset').onclick = () => {
+  try { localStorage.removeItem(MASK_KEY); } catch(e){}
+  saveMask({ title:'OpenCase', icon: DEFAULT_ICON, host:'' });
+  $('mk-url').value = '';
+  $('mk-hint').className='hint'; $('mk-hint').textContent='Back to OpenCase.';
+  toast('Disguise removed');
+};
+
+$('mk-fetch').classList.toggle('on', fetchIcons);
+$('mk-fetch').onclick = () => {
+  fetchIcons = !fetchIcons;
+  localStorage.setItem(FETCH_KEY, fetchIcons ? '1' : '0');
+  $('mk-fetch').classList.toggle('on', fetchIcons);
+  toast(fetchIcons ? 'Real icons on' : 'Icons drawn locally — no network');
+};
+
+const FALLBACK_PRESETS = ['classroom.google.com','docs.google.com','drive.google.com',
+  'mail.google.com','en.wikipedia.org','khanacademy.org','canvas.instructure.com',
+  'quizlet.com','desmos.com','clever.com','office.com','zoom.us'];
+
+let presetsLoaded = false;
+async function loadPresets(){
+  if (presetsLoaded) return;
+  presetsLoaded = true;
+  let lines = null;
+  try {
+    const res = await fetch(location.origin + '/preset.txt', { cache:'no-store' });
+    if (res.ok){
+      const text = await res.text();
+      if (!/^\s*</.test(text)) lines = text.split(/\r?\n/);
+    }
+  } catch(e){ console.warn('preset.txt:', e.message); }
+
+  let entries;
+  if (lines){
+    entries = lines.map(l=>l.trim()).filter(l=>l && !l.startsWith('#'))
+      .map(l => { const [u,n] = l.split('|'); return { host: hostOf(u), name:(n||'').trim() }; })
+      .filter(e => e.host);
+    $('mk-presethint').textContent = entries.length + ' presets loaded from preset.txt';
+  } else {
+    entries = FALLBACK_PRESETS.map(u => ({ host: hostOf(u), name:'' }));
+    $('mk-presethint').textContent = 'Built-in presets — add preset.txt to your site root to change them.';
+  }
+  $('mk-presethint').className = 'hint';
+
+  const box = $('mk-presets'); box.innerHTML='';
+  entries.slice(0,60).forEach((e,i) => {
+    const title = e.name || titleFor(e.host);
+    const b=document.createElement('button'); b.className='preset'; b.dataset.host=e.host;
+    const img=document.createElement('img'); img.alt='';
+    const sp=document.createElement('span'); sp.textContent=title;
+    b.append(img, sp);
+    if (iconCache[e.host]) img.src = iconCache[e.host];
+    else {
+      img.src = letterIcon(title[0].toUpperCase(), '#C9CBD1');
+      setTimeout(() => { iconFor(e.host, title).then(ic => {
+        if (!ic) return;
+        img.src = ic;
+        if (mask.host === e.host) saveMask({ title, host: e.host, icon: ic });
+      }); }, 140 * (i % 8));
+    }
+    b.onclick = () => { setMaskNow(e.host, title); if (iconCache[e.host]) img.src = iconCache[e.host]; };
+    box.appendChild(b);
+  });
+  paintMaskPreview();
+}
 
 paintMaskPreview();
 
@@ -2041,6 +2261,9 @@ inviteBanner();
       'background:#FF4B3E;color:#fff;border-radius:10px;padding:9px 13px;white-space:nowrap;' +
       'box-shadow:0 3px 0 #D22F24}' +
       '#fix:active{transform:translateY(3px);box-shadow:none}' +
+      '#rf{font:inherit;font-size:17px;line-height:1;border:0;cursor:pointer;background:#F5F6F8;' +
+      'color:#16181D;border-radius:10px;width:36px;height:34px}' +
+      '#rf:hover{background:#E9EAEE}' +
       '#f{border:0;display:block;width:100%;height:calc(100% - 52px)}' +
       '@media (max-width:420px){#fix{font-size:11.5px;padding:8px 10px}#mk{height:22px}}' +
       '</style></head><body>' +
@@ -2048,10 +2271,18 @@ inviteBanner();
       '<img id="mk" src="' + mark + '" alt="OpenCase" ' +
       'onerror="this.style.display=\'none\';document.getElementById(\'mkfall\').style.display=\'block\'">' +
       '<div id="mkfall">Open<i>Case</i></div>' +
-      '<button id="fix">Not bookmarked? Go back to fix it</button></div>' +
+      '<div style="display:flex;gap:8px;align-items:center">' +
+      '<button id="rf" title="Refresh">\u21bb</button>' +
+      '<button id="fix">Not bookmarked? Go back to fix it</button></div></div>' +
       '<iframe id="f" src="' + src + '"></iframe>' +
-      '<scr' + 'ipt>document.getElementById("fix").onclick=function(){' +
-      'location.href=' + JSON.stringify(real) + '};</scr' + 'ipt>' +
+      '<scr' + 'ipt>' +
+      'var F=document.getElementById("f");' +
+      'document.getElementById("fix").onclick=function(){location.href=' + JSON.stringify(real) + '};' +
+      'document.getElementById("rf").onclick=function(){try{F.contentWindow.location.reload()}catch(e){F.src=F.src}};' +
+      'document.addEventListener("keydown",function(e){' +
+      'if(e.key==="F5"||((e.ctrlKey||e.metaKey)&&(e.key==="r"||e.key==="R"))){' +
+      'e.preventDefault();try{F.contentWindow.location.reload()}catch(err){F.src=F.src}}});' +
+      '</scr' + 'ipt>' +
       '</body></html>';
   }
 
