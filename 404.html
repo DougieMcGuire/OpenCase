@@ -1465,242 +1465,73 @@ $('me-save').onclick = async () => {
   busy($('me-save'), false, 'Save changes');
 };
 
-/* ================= STAFF ================= */
-function paintStaff(){
-  const box=$('stafflist');
-  if (box.dataset.done) return;
-  box.dataset.done='1';
-  STAFF.forEach(p=>{
-    const card=document.createElement('div'); card.className='staff';
-    const shot=document.createElement('div'); shot.className='shot';
-    if (p.img){ const i=document.createElement('img'); i.src=p.img; i.alt=p.name; shot.appendChild(i); }
-    else { shot.style.background=avColor(p.name); shot.textContent=(p.name[0]||'?').toUpperCase(); }
-    const t=document.createElement('div'); t.style.minWidth='0';
-    const role=document.createElement('div'); role.className='role'; role.textContent=p.role;
-    const nm=document.createElement('div'); nm.className='h2'; nm.textContent=p.name;
-    const bio=document.createElement('div'); bio.className='bio'; bio.textContent=p.bio;
-    t.append(role,nm,bio); card.append(shot,t); box.appendChild(card);
-  });
+/* ================= STAFF =================
+   Loads /staff.txt (JSON array). Absolute path on purpose: the app is served
+   from arbitrary fake paths, so a relative fetch would hit the 404 handler and
+   come back as this page's own HTML. Falls back to the built-in list. */
+let staffLoaded = false;
+
+function staffImg(src){
+  if (!src) return '';
+  if (/^(https?:|data:)/i.test(src)) return src;
+  return location.origin + '/' + String(src).replace(/^\/+/, '');
 }
 
-/* ================= SITE MASKING =================
-   Everything here is local-first. The only network call this feature can
-   ever make is one favicon lookup per site, and only when the toggle is on.
-   Once cached as a data URL it never asks again. */
-const DEFAULT_ICON = window.OC_DEFAULT_ICON;
-const MASK_KEY = 'oc.mask', ICONS_KEY = 'oc.icons', FETCH_KEY = 'oc.iconfetch';
-
-let mask = window.OC_MASK;
-let iconCache = {};
-try { iconCache = JSON.parse(localStorage.getItem(ICONS_KEY) || '{}'); } catch(e){ iconCache = {}; }
-let fetchIcons = localStorage.getItem(FETCH_KEY) !== '0';
-
-/* Common sites read better with a hand-written name than a derived one. */
-const KNOWN = {
-  'classroom.google.com':'Classroom','docs.google.com':'Google Docs','drive.google.com':'Google Drive',
-  'mail.google.com':'Gmail','sheets.google.com':'Google Sheets','slides.google.com':'Google Slides',
-  'google.com':'Google','wikipedia.org':'Wikipedia','khanacademy.org':'Khan Academy',
-  'quizlet.com':'Quizlet','canvas.instructure.com':'Canvas','instructure.com':'Canvas',
-  'schoology.com':'Schoology','clever.com':'Clever','desmos.com':'Desmos',
-  'powerschool.com':'PowerSchool','office.com':'Office','outlook.com':'Outlook',
-  'teams.microsoft.com':'Microsoft Teams','zoom.us':'Zoom','duolingo.com':'Duolingo',
-  'ixl.com':'IXL','nearpod.com':'Nearpod','kahoot.it':'Kahoot!','edpuzzle.com':'Edpuzzle'
-};
-
-function hostOf(raw){
-  let s = String(raw||'').trim();
-  if (!s) return '';
-  s = s.replace(/^[a-z]+:\/\//i,'').split(/[/?#]/)[0].toLowerCase();
-  s = s.replace(/^www\./,'');
-  return /^[a-z0-9.-]+\.[a-z]{2,}$/.test(s) ? s : '';
+async function loadStaffFile(){
+  const res = await fetch(location.origin + '/staff.txt', { cache:'no-store' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  let text = await res.text();
+  if (/^\s*</.test(text)) throw new Error('got HTML, not JSON');
+  text = text.replace(/^\s*\/\/.*$/gm, '');          // allow // comment lines
+  const data = JSON.parse(text);
+  if (!Array.isArray(data)) throw new Error('top level is not an array');
+  return data.filter(p => p && p.name);
 }
 
-function titleFor(host){
-  if (KNOWN[host]) return KNOWN[host];
-  const parts = host.split('.');
-  const base = parts.length > 2 && parts[0] !== 'www' ? parts[0] : parts[parts.length-2];
-  return base.replace(/[-_]/g,' ').replace(/\b\w/g, c => c.toUpperCase());
-}
+async function paintStaff(){
+  if (staffLoaded) return;
+  staffLoaded = true;
+  const box = $('stafflist');
+  box.innerHTML = '<p class="muted sm">Loading the team…</p>';
 
-function letterIcon(ch, color){
-  const svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>" +
-    "<text x='32' y='47' font-family='Arial,Helvetica,sans-serif' font-size='54' font-weight='bold' fill='" +
-    (color||'#FF4B3E') + "' text-anchor='middle'>" + ch + "</text></svg>";
-  return 'data:image/svg+xml,' + encodeURIComponent(svg);
-}
-
-/* Loads an image cross-origin and resolves only if it actually renders.
-   No CORS needed — this is how <img> has always worked. */
-function testImage(url, timeout){
-  return new Promise(res => {
-    const img = new Image();
-    let done = false;
-    const finish = ok => { if (!done){ done = true; res(ok ? url : null); } };
-    img.onload  = () => finish(img.naturalWidth > 1 && img.naturalHeight > 1);
-    img.onerror = () => finish(false);
-    setTimeout(() => finish(false), timeout || 6000);
-    img.src = url;
-  });
-}
-
-/* Once we have a URL that works, try to bake it into a data URL so it never
-   hits the network again. Needs CORS; if that's refused we simply keep the URL. */
-function toDataUrl(url){
-  return new Promise(res => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    let done = false;
-    const give = v => { if (!done){ done = true; res(v); } };
-    img.onload = () => {
-      try {
-        const c = document.createElement('canvas');
-        c.width = c.height = 64;
-        const x = c.getContext('2d');
-        x.drawImage(img, 0, 0, 64, 64);
-        give(c.toDataURL('image/png'));
-      } catch(e){ give(null); }
-    };
-    img.onerror = () => give(null);
-    setTimeout(() => give(null), 6000);
-    img.src = url;
-  });
-}
-
-function iconSources(host){
-  return [
-    'https://icons.duckduckgo.com/ip3/' + host + '.ico',
-    'https://www.google.com/s2/favicons?sz=64&domain=' + encodeURIComponent(host),
-    'https://favicon.im/' + host + '?larger=true',
-    'https://' + host + '/favicon.ico'
-  ];
-}
-
-async function iconFor(host, title){
-  if (iconCache[host]) return iconCache[host];
-  if (!fetchIcons) return letterIcon((title||host)[0].toUpperCase(), '#FF4B3E');
-
-  for (const src of iconSources(host)){
-    const ok = await testImage(src);
-    if (!ok) continue;
-    const data = await toDataUrl(ok);
-    const keep = data || ok;
-    iconCache[host] = keep;
-    try { localStorage.setItem(ICONS_KEY, JSON.stringify(iconCache)); }
-    catch(e){ iconCache = { [host]: keep };
-              try { localStorage.setItem(ICONS_KEY, JSON.stringify(iconCache)); } catch(e2){} }
-    return keep;
-  }
-  console.warn('every icon source failed for', host);
-  return letterIcon((title||host)[0].toUpperCase(), '#FF4B3E');
-}
-
-function saveMask(m){
-  mask = m;
-  try { localStorage.setItem(MASK_KEY, JSON.stringify(m)); } catch(e){}
-  window.OC_APPLY_MASK(m);
-  /* the cloak window is same-origin, so keep the real browser tab in sync too */
-  try { if (window.parent && window.parent !== window) window.OC_APPLY_MASK(m, window.parent.document); } catch(e){}
-  paintMaskPreview();
-}
-
-function paintMaskPreview(){
-  $('mk-picon').src = mask.icon || DEFAULT_ICON;
-  $('mk-ptitle').textContent = mask.title;
-  const on = mask.host && mask.title !== 'OpenCase';
-  $('me-maskline').textContent = on ? 'Disguised as ' + mask.title : 'Disguise this tab';
-  document.querySelectorAll('.preset').forEach(el => el.classList.toggle('on', el.dataset.host === mask.host));
-}
-
-async function applyHost(raw){
-  const host = hostOf(raw);
-  if (!host){ $('mk-hint').className='hint bad'; $('mk-hint').textContent='That does not look like a web address.'; return; }
-  $('mk-hint').className='hint'; $('mk-hint').textContent='Fetching the real icon for '+host+'…';
-  const title = titleFor(host);
-  const icon = await iconFor(host, title);
-  if (icon.indexOf('image/svg') !== -1)
-    console.warn('fell back to a letter icon for', host);
-  saveMask({ title, icon, host });
-  $('mk-hint').className='hint ok';
-  $('mk-hint').textContent = 'This tab is now "' + title + '".';
-  $('mk-url').value = '';
-}
-
-$('me-mask').onclick = () => setTab('mask');
-$('mk-apply').onclick = () => applyHost($('mk-url').value);
-$('mk-url').addEventListener('keydown', e => { if (e.key==='Enter') $('mk-apply').click(); });
-$('mk-reset').onclick = () => {
-  saveMask({ title:'OpenCase', icon: DEFAULT_ICON, host:'' });
-  $('mk-hint').className='hint'; $('mk-hint').textContent='Back to normal.';
-};
-
-$('mk-fetch').classList.toggle('on', fetchIcons);
-$('mk-fetch').onclick = () => {
-  fetchIcons = !fetchIcons;
-  localStorage.setItem(FETCH_KEY, fetchIcons ? '1' : '0');
-  $('mk-fetch').classList.toggle('on', fetchIcons);
-  toast(fetchIcons ? 'Real icons on' : 'Icons drawn locally — no network');
-};
-
-/* preset.txt lives at the site root. The path has to be absolute: this app is
-   served from arbitrary deep URLs, and a relative fetch would resolve against
-   the fake path and come back as the 404 page. */
-const FALLBACK_PRESETS = [
-  'classroom.google.com','docs.google.com','drive.google.com','mail.google.com',
-  'en.wikipedia.org','khanacademy.org','canvas.instructure.com','quizlet.com',
-  'desmos.com','clever.com','office.com','zoom.us'
-];
-
-let presetsLoaded = false;
-async function loadPresets(){
-  if (presetsLoaded) return;
-  presetsLoaded = true;
-  let lines = null;
+  let list = STAFF, note = 'Built-in list — add staff.txt to your site root to change it.';
   try {
-    const res = await fetch(location.origin + '/preset.txt', { cache:'no-store' });
-    if (res.ok){
-      const text = await res.text();
-      if (!/^\s*</.test(text)) lines = text.split(/\r?\n/);
-    }
-  } catch(e){ console.warn('preset.txt not reachable:', e.message); }
-
-  let entries;
-  if (lines){
-    entries = lines.map(l => l.trim())
-      .filter(l => l && !l.startsWith('#'))
-      .map(l => { const [u,n] = l.split('|'); return { host: hostOf(u), name: (n||'').trim() }; })
-      .filter(e => e.host);
-    $('mk-presethint').className = 'hint';
-    $('mk-presethint').textContent = entries.length + ' presets loaded from preset.txt';
-  } else {
-    entries = FALLBACK_PRESETS.map(u => ({ host: hostOf(u), name:'' }));
-    $('mk-presethint').className = 'hint';
-    $('mk-presethint').textContent = 'Using built-in presets — add preset.txt to your site root to change them.';
+    const loaded = await loadStaffFile();
+    if (loaded.length){ list = loaded; note = list.length + ' loaded from staff.txt'; }
+  } catch(e){
+    console.warn('staff.txt:', e.message);
+    note = 'staff.txt unreadable (' + e.message + ') — showing the built-in list.';
   }
 
-  const box = $('mk-presets'); box.innerHTML = '';
-  entries.slice(0, 60).forEach(e => {
-    const title = e.name || titleFor(e.host);
-    const b = document.createElement('button');
-    b.className = 'preset'; b.dataset.host = e.host;
-    const img = document.createElement('img');
-    img.alt = '';
-    if (iconCache[e.host]) img.src = iconCache[e.host];
-    else {
-      img.src = letterIcon(title[0].toUpperCase(), '#C9CBD1');
-      iconFor(e.host, title).then(ic => { img.src = ic; });
+  box.innerHTML = '';
+  list.forEach(pn => {
+    const card = document.createElement('div'); card.className='staff';
+    const shot = document.createElement('div'); shot.className='shot';
+    const src = staffImg(pn.img);
+    if (src){
+      const i = document.createElement('img');
+      i.src = src; i.alt = pn.name; i.loading = 'lazy';
+      i.onerror = () => {
+        shot.textContent = (pn.name[0]||'?').toUpperCase();
+        shot.style.background = avColor(pn.name);
+      };
+      shot.appendChild(i);
+    } else {
+      shot.style.background = avColor(pn.name);
+      shot.textContent = (pn.name[0]||'?').toUpperCase();
     }
-    const sp = document.createElement('span'); sp.textContent = title;
-    b.append(img, sp);
-    b.onclick = async () => {
-      const icon = await iconFor(e.host, title);
-      img.src = icon;
-      saveMask({ title, icon, host: e.host });
-      $('mk-hint').className='hint ok';
-      $('mk-hint').textContent = 'This tab is now "' + title + '".';
-    };
-    box.appendChild(b);
+    const t = document.createElement('div'); t.style.minWidth='0';
+    if (pn.role){ const r=document.createElement('div'); r.className='role'; r.textContent=pn.role; t.appendChild(r); }
+    const nm = document.createElement('div'); nm.className='h2'; nm.textContent = pn.name;
+    t.appendChild(nm);
+    if (pn.bio){ const b=document.createElement('div'); b.className='bio'; b.textContent=pn.bio; t.appendChild(b); }
+    card.append(shot, t); box.appendChild(card);
   });
-  paintMaskPreview();
+
+  const foot = document.createElement('p');
+  foot.className = 'hint'; foot.style.marginTop = '4px';
+  foot.textContent = note;
+  box.appendChild(foot);
 }
 
 paintMaskPreview();
