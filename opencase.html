@@ -6,6 +6,30 @@
 <meta name="referrer" content="no-referrer" />
 <meta name="theme-color" content="#FF4B3E" />
 <title>OpenCase</title>
+<script>
+/* Applies the saved disguise before the page paints, so the tab never
+   flashes the real name. Pure localStorage — no network. */
+window.OC_DEFAULT_ICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext x='32' y='47' font-family='Arial,Helvetica,sans-serif' font-size='54' font-weight='bold' fill='%23FF4B3E' text-anchor='middle'%3EO%3C/text%3E%3C/svg%3E";
+window.OC_MASK = (function () {
+  var m = null;
+  try { m = JSON.parse(localStorage.getItem('oc.mask') || 'null'); } catch (e) {}
+  if (!m || !m.title) m = { title: 'OpenCase', icon: window.OC_DEFAULT_ICON, host: '' };
+  if (!m.icon) m.icon = window.OC_DEFAULT_ICON;
+  return m;
+})();
+window.OC_APPLY_MASK = function (m, docu) {
+  docu = docu || document;
+  try {
+    docu.title = m.title;
+    var old = docu.querySelectorAll("link[rel~='icon'],link[rel='shortcut icon']");
+    for (var i = 0; i < old.length; i++) old[i].parentNode.removeChild(old[i]);
+    var l = docu.createElement('link');
+    l.rel = 'icon'; l.href = m.icon;
+    (docu.head || docu.getElementsByTagName('head')[0]).appendChild(l);
+  } catch (e) {}
+};
+window.OC_APPLY_MASK(window.OC_MASK);
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -209,6 +233,28 @@ button.rowitem:hover{background:var(--soft)}
 .chk{width:26px;height:26px;border-radius:9px;border:2px solid var(--line);flex:none;
   display:grid;place-items:center;color:#fff;font-size:14px;font-weight:700}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- disguise ---------- */
+.tabprev{display:flex;align-items:center;gap:10px;background:var(--soft);border-radius:14px 14px 0 0;
+  padding:11px 14px;max-width:300px;border:1px solid var(--line);border-bottom:0}
+.tabprev img{width:18px;height:18px;flex:none;border-radius:3px;object-fit:contain}
+.tabprev span{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tabbar{height:8px;background:var(--soft);border:1px solid var(--line);border-top:0;
+  border-radius:0 0 10px 10px;max-width:300px;margin-bottom:20px}
+.presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px}
+.preset{display:flex;align-items:center;gap:9px;padding:11px 12px;border:2px solid var(--line);
+  border-radius:14px;text-align:left;min-width:0}
+.preset:hover{border-color:var(--ink)}
+.preset.on{border-color:var(--brand);background:var(--brand-soft)}
+.preset img{width:20px;height:20px;flex:none;border-radius:4px;object-fit:contain}
+.preset span{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.togg{display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:14px 0;border-top:1px solid var(--line);margin-top:8px}
+.sw2{width:50px;height:30px;border-radius:99px;background:var(--line);flex:none;position:relative;transition:background .15s}
+.sw2 i{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;
+  transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.sw2.on{background:var(--ok)}
+.sw2.on i{transform:translateX(20px)}
 </style>
 </head>
 <body>
@@ -356,6 +402,12 @@ button.rowitem:hover{background:var(--soft)}
       <div class="card sm" style="word-break:break-all;color:var(--dim)" id="me-link">—</div>
       <button class="btn grey" id="me-copy">Copy link</button>
 
+      <p class="lbl" style="margin-top:24px">Privacy</p>
+      <button class="btn line" id="me-mask" style="justify-content:space-between">
+        <span id="me-maskline">Disguise this tab</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+
       <button class="btn line" id="me-out" style="margin-top:24px;color:var(--brand-d)">Sign out</button>
     </div></div>
 
@@ -485,6 +537,43 @@ button.rowitem:hover{background:var(--soft)}
         </button>
       </div>
     </div>
+  </section>
+
+  <!-- ============ DISGUISE ============ -->
+  <section id="s-mask" class="screen">
+    <div class="top">
+      <button class="ico" id="mk-back" aria-label="Back">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="ttl">Disguise</div>
+    </div>
+    <div class="scroll"><div class="pad">
+      <p class="muted" style="margin:0 0 18px">Change what this tab calls itself. The name and icon in your
+        browser tab, history and bookmarks all follow whatever you pick here.</p>
+
+      <p class="lbl">Right now it looks like</p>
+      <div class="tabprev"><img id="mk-picon" alt="" /><span id="mk-ptitle">OpenCase</span></div>
+      <div class="tabbar"></div>
+
+      <p class="lbl">Disguise as a site</p>
+      <input class="inp" id="mk-url" placeholder="classroom.google.com" spellcheck="false" autocapitalize="off" />
+      <div class="hint" id="mk-hint"></div>
+      <button class="btn" id="mk-apply">Apply disguise</button>
+      <button class="btn grey" id="mk-reset" style="margin-top:10px">Back to OpenCase</button>
+
+      <p class="lbl" style="margin-top:26px">Presets</p>
+      <div class="presets" id="mk-presets"></div>
+      <p class="hint" id="mk-presethint" style="margin-top:10px"></p>
+
+      <div class="togg">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:15px">Fetch real icons</div>
+          <div class="sm muted" style="margin-top:2px">One request to icons.duckduckgo.com per site, then
+            cached forever. Turn this off and icons are drawn locally with no network at all.</div>
+        </div>
+        <button class="sw2" id="mk-fetch" aria-label="Toggle icon fetching"><i></i></button>
+      </div>
+    </div></div>
   </section>
 
   <div id="s-placeholder">
@@ -1351,6 +1440,179 @@ function paintStaff(){
     t.append(role,nm,bio); card.append(shot,t); box.appendChild(card);
   });
 }
+
+/* ================= SITE MASKING =================
+   Everything here is local-first. The only network call this feature can
+   ever make is one favicon lookup per site, and only when the toggle is on.
+   Once cached as a data URL it never asks again. */
+const DEFAULT_ICON = window.OC_DEFAULT_ICON;
+const MASK_KEY = 'oc.mask', ICONS_KEY = 'oc.icons', FETCH_KEY = 'oc.iconfetch';
+
+let mask = window.OC_MASK;
+let iconCache = {};
+try { iconCache = JSON.parse(localStorage.getItem(ICONS_KEY) || '{}'); } catch(e){ iconCache = {}; }
+let fetchIcons = localStorage.getItem(FETCH_KEY) !== '0';
+
+/* Common sites read better with a hand-written name than a derived one. */
+const KNOWN = {
+  'classroom.google.com':'Classroom','docs.google.com':'Google Docs','drive.google.com':'Google Drive',
+  'mail.google.com':'Gmail','sheets.google.com':'Google Sheets','slides.google.com':'Google Slides',
+  'google.com':'Google','wikipedia.org':'Wikipedia','khanacademy.org':'Khan Academy',
+  'quizlet.com':'Quizlet','canvas.instructure.com':'Canvas','instructure.com':'Canvas',
+  'schoology.com':'Schoology','clever.com':'Clever','desmos.com':'Desmos',
+  'powerschool.com':'PowerSchool','office.com':'Office','outlook.com':'Outlook',
+  'teams.microsoft.com':'Microsoft Teams','zoom.us':'Zoom','duolingo.com':'Duolingo',
+  'ixl.com':'IXL','nearpod.com':'Nearpod','kahoot.it':'Kahoot!','edpuzzle.com':'Edpuzzle'
+};
+
+function hostOf(raw){
+  let s = String(raw||'').trim();
+  if (!s) return '';
+  s = s.replace(/^[a-z]+:\/\//i,'').split(/[/?#]/)[0].toLowerCase();
+  s = s.replace(/^www\./,'');
+  return /^[a-z0-9.-]+\.[a-z]{2,}$/.test(s) ? s : '';
+}
+
+function titleFor(host){
+  if (KNOWN[host]) return KNOWN[host];
+  const parts = host.split('.');
+  const base = parts.length > 2 && parts[0] !== 'www' ? parts[0] : parts[parts.length-2];
+  return base.replace(/[-_]/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function letterIcon(ch, color){
+  const svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>" +
+    "<text x='32' y='47' font-family='Arial,Helvetica,sans-serif' font-size='54' font-weight='bold' fill='" +
+    (color||'#FF4B3E') + "' text-anchor='middle'>" + ch + "</text></svg>";
+  return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+
+async function iconFor(host, title){
+  if (iconCache[host]) return iconCache[host];
+  const fallback = letterIcon((title||host)[0].toUpperCase(), '#FF4B3E');
+  if (!fetchIcons) return fallback;
+  try {
+    const res = await fetch('https://icons.duckduckgo.com/ip3/'+host+'.ico', { mode:'cors', cache:'force-cache' });
+    if (!res.ok) throw new Error('status '+res.status);
+    const blob = await res.blob();
+    if (blob.size < 40 || blob.size > 200000) throw new Error('bad size');
+    const data = await new Promise((ok,no)=>{
+      const fr=new FileReader(); fr.onload=()=>ok(fr.result); fr.onerror=no; fr.readAsDataURL(blob);
+    });
+    iconCache[host] = data;
+    try { localStorage.setItem(ICONS_KEY, JSON.stringify(iconCache)); } catch(e){}
+    return data;
+  } catch(e){
+    console.warn('icon fetch failed for', host, e.message);
+    return fallback;
+  }
+}
+
+function saveMask(m){
+  mask = m;
+  try { localStorage.setItem(MASK_KEY, JSON.stringify(m)); } catch(e){}
+  window.OC_APPLY_MASK(m);
+  /* the cloak window is same-origin, so keep the real browser tab in sync too */
+  try { if (window.parent && window.parent !== window) window.OC_APPLY_MASK(m, window.parent.document); } catch(e){}
+  paintMaskPreview();
+}
+
+function paintMaskPreview(){
+  $('mk-picon').src = mask.icon || DEFAULT_ICON;
+  $('mk-ptitle').textContent = mask.title;
+  const on = mask.host && mask.title !== 'OpenCase';
+  $('me-maskline').textContent = on ? 'Disguised as ' + mask.title : 'Disguise this tab';
+  document.querySelectorAll('.preset').forEach(el => el.classList.toggle('on', el.dataset.host === mask.host));
+}
+
+async function applyHost(raw){
+  const host = hostOf(raw);
+  if (!host){ $('mk-hint').className='hint bad'; $('mk-hint').textContent='That does not look like a web address.'; return; }
+  $('mk-hint').className='hint'; $('mk-hint').textContent='Building the disguise…';
+  const title = titleFor(host);
+  const icon = await iconFor(host, title);
+  saveMask({ title, icon, host });
+  $('mk-hint').className='hint ok';
+  $('mk-hint').textContent = 'This tab is now "' + title + '".';
+  $('mk-url').value = '';
+}
+
+$('me-mask').onclick = () => { show('s-mask'); paintMaskPreview(); loadPresets(); };
+$('mk-back').onclick = () => show('s-main');
+$('mk-apply').onclick = () => applyHost($('mk-url').value);
+$('mk-url').addEventListener('keydown', e => { if (e.key==='Enter') $('mk-apply').click(); });
+$('mk-reset').onclick = () => {
+  saveMask({ title:'OpenCase', icon: DEFAULT_ICON, host:'' });
+  $('mk-hint').className='hint'; $('mk-hint').textContent='Back to normal.';
+};
+
+$('mk-fetch').classList.toggle('on', fetchIcons);
+$('mk-fetch').onclick = () => {
+  fetchIcons = !fetchIcons;
+  localStorage.setItem(FETCH_KEY, fetchIcons ? '1' : '0');
+  $('mk-fetch').classList.toggle('on', fetchIcons);
+  toast(fetchIcons ? 'Real icons on' : 'Icons drawn locally — no network');
+};
+
+/* preset.txt lives at the site root. The path has to be absolute: this app is
+   served from arbitrary deep URLs, and a relative fetch would resolve against
+   the fake path and come back as the 404 page. */
+const FALLBACK_PRESETS = [
+  'classroom.google.com','docs.google.com','drive.google.com','mail.google.com',
+  'en.wikipedia.org','khanacademy.org','canvas.instructure.com','quizlet.com',
+  'desmos.com','clever.com','office.com','zoom.us'
+];
+
+let presetsLoaded = false;
+async function loadPresets(){
+  if (presetsLoaded) return;
+  presetsLoaded = true;
+  let lines = null;
+  try {
+    const res = await fetch(location.origin + '/preset.txt', { cache:'no-store' });
+    if (res.ok){
+      const text = await res.text();
+      if (!/^\s*</.test(text)) lines = text.split(/\r?\n/);
+    }
+  } catch(e){ console.warn('preset.txt not reachable:', e.message); }
+
+  let entries;
+  if (lines){
+    entries = lines.map(l => l.trim())
+      .filter(l => l && !l.startsWith('#'))
+      .map(l => { const [u,n] = l.split('|'); return { host: hostOf(u), name: (n||'').trim() }; })
+      .filter(e => e.host);
+    $('mk-presethint').className = 'hint';
+    $('mk-presethint').textContent = entries.length + ' presets loaded from preset.txt';
+  } else {
+    entries = FALLBACK_PRESETS.map(u => ({ host: hostOf(u), name:'' }));
+    $('mk-presethint').className = 'hint';
+    $('mk-presethint').textContent = 'Using built-in presets — add preset.txt to your site root to change them.';
+  }
+
+  const box = $('mk-presets'); box.innerHTML = '';
+  entries.slice(0, 60).forEach(e => {
+    const title = e.name || titleFor(e.host);
+    const b = document.createElement('button');
+    b.className = 'preset'; b.dataset.host = e.host;
+    const img = document.createElement('img');
+    img.src = iconCache[e.host] || letterIcon(title[0].toUpperCase(), '#9CA3AF');
+    img.alt = '';
+    const sp = document.createElement('span'); sp.textContent = title;
+    b.append(img, sp);
+    b.onclick = async () => {
+      const icon = await iconFor(e.host, title);
+      img.src = icon;
+      saveMask({ title, icon, host: e.host });
+      $('mk-hint').className='hint ok';
+      $('mk-hint').textContent = 'This tab is now "' + title + '".';
+    };
+    box.appendChild(b);
+  });
+  paintMaskPreview();
+}
+
+paintMaskPreview();
 
 inviteBanner();
 </script>
