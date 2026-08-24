@@ -53,7 +53,7 @@ window.OC_APPLY_MASK(window.OC_MASK);
 :root{
   --brand:#FF4B3E; --brand-d:#D22F24; --brand-soft:#FFF1EF;
   --ink:#16181D; --dim:#6B7280; --faint:#9CA3AF;
-  --line:#E9EAEE; --soft:#F5F6F8; --paper:#FFFFFF; --ok:#14A15C;
+  --line:#E9EAEE; --soft:#F5F6F8; --paper:#FFFFFF; --ok:#14A15C; --greysh:#DCDEE3;
   --side:340px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -116,13 +116,13 @@ input,textarea{font:inherit;color:inherit;width:100%}
   box-shadow:0 4px 0 var(--brand-d);transition:transform .06s,box-shadow .06s;font-family:'Nunito',sans-serif}
 .btn:active{transform:translateY(4px);box-shadow:0 0 0 var(--brand-d)}
 .btn:disabled{opacity:.5}
-.btn.grey{background:var(--soft);color:var(--ink);box-shadow:0 4px 0 #DCDEE3}
-.btn.grey:active{box-shadow:0 0 0 #DCDEE3}
+.btn.grey{background:var(--soft);color:var(--ink);box-shadow:0 4px 0 var(--greysh)}
+.btn.grey:active{box-shadow:0 0 0 var(--greysh)}
 .btn.line{background:var(--paper);color:var(--ink);box-shadow:0 0 0 2px var(--line) inset}
 .btn.line:active{transform:none}
 .btn.sm{padding:10px 15px;font-size:14px;width:auto;border-radius:11px;box-shadow:0 3px 0 var(--brand-d);flex:none}
 .btn.sm:active{transform:translateY(3px)}
-.btn.grey.sm{box-shadow:0 3px 0 #DCDEE3}
+.btn.grey.sm{box-shadow:0 3px 0 var(--greysh)}
 .link{color:var(--brand);font-weight:700;cursor:pointer}
 .row{display:flex;gap:10px}
 
@@ -190,10 +190,10 @@ button.rowitem:hover{background:var(--soft)}
   border-top:1px solid var(--line);flex:none}
 .bar .inp{margin:0;border-radius:99px;padding:12px 17px}
 .circ{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;flex:none}
-.circ.snap{background:var(--soft);color:var(--ink);box-shadow:0 3px 0 #DCDEE3}
+.circ.snap{background:var(--soft);color:var(--ink);box-shadow:0 3px 0 var(--greysh)}
 .circ.send{background:var(--brand);color:#fff;box-shadow:0 3px 0 var(--brand-d)}
 .circ:active{transform:translateY(3px);box-shadow:none}
-.circ.send:disabled{background:var(--line);color:var(--faint);box-shadow:0 3px 0 #DCDEE3}
+.circ.send:disabled{background:var(--line);color:var(--faint);box-shadow:0 3px 0 var(--greysh)}
 
 /* ---------- camera + editor ---------- */
 #s-cam,#s-edit{background:#0B0B0C;color:#fff}
@@ -271,6 +271,68 @@ button.rowitem:hover{background:var(--soft)}
   transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .sw2.on{background:var(--ok)}
 .sw2.on i{transform:translateX(20px)}
+
+/* ---------- dark mode ---------- */
+@media (prefers-color-scheme: dark){
+  :root{
+    --ink:#EDEFF2; --dim:#9AA1AC; --faint:#6E7683;
+    --line:#282C34; --soft:#20242A; --paper:#15171B; --greysh:#0D0F12;
+    --brand-soft:#3A1F1C;
+  }
+  body{background:var(--paper)}
+  .inp{background:var(--soft)}
+  .inp:focus{background:var(--paper)}
+  .bub{color:var(--ink)}
+  .tabprev,.tabbar{background:var(--soft)}
+}
+
+/* ---------- unread / list ---------- */
+.rowitem.unread .nm{font-weight:800}
+.rowitem.unread .ds{color:var(--ink);font-weight:500}
+.pip{width:10px;height:10px;border-radius:50%;background:var(--brand);flex:none;align-self:center}
+.searchwrap{padding:10px 14px 4px;flex:none}
+.searchwrap .inp{margin:0;border-radius:99px;padding:11px 16px;font-size:14.5px;background:var(--soft);border-color:transparent}
+
+/* ---------- message extras ---------- */
+.daysep{display:flex;align-items:center;gap:10px;margin:16px 4px 10px;color:var(--faint);
+  font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.daysep::before,.daysep::after{content:"";height:1px;background:var(--line);flex:1}
+.bub{position:relative;cursor:default}
+.mline.pending .bub{opacity:.55}
+.stamp{font-size:10.5px;color:var(--faint);margin:2px 0 0 46px;font-weight:500}
+.mline.mine + .stamp{text-align:right;margin:2px 4px 0 0}
+.reacts{display:flex;gap:4px;flex-wrap:wrap;margin:3px 0 2px 46px}
+.mline.mine ~ .reacts{justify-content:flex-end;margin:3px 4px 2px 0}
+.react{display:inline-flex;align-items:center;gap:4px;background:var(--soft);border:1px solid var(--line);
+  border-radius:99px;padding:2px 8px;font-size:12.5px;font-weight:600;line-height:1.5}
+.react.mine{background:var(--brand-soft);border-color:var(--brand)}
+.bub a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.mline:not(.mine) .bub a{color:var(--brand)}
+
+/* ---------- pill / typing ---------- */
+.pill{position:absolute;left:50%;transform:translateX(-50%);bottom:76px;background:var(--ink);
+  color:var(--paper);font-size:13px;font-weight:700;padding:9px 16px;border-radius:99px;
+  box-shadow:0 6px 20px rgba(0,0,0,.22);z-index:12;display:none;cursor:pointer}
+.pill.on{display:block}
+#s-chat{position:relative}
+.typing{padding:0 14px 6px;font-size:12.5px;color:var(--dim);font-weight:500;min-height:19px;flex:none}
+.typing i{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--faint);
+  margin-left:2px;animation:bl 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s} .typing i:nth-child(3){animation-delay:.4s}
+@keyframes bl{0%,60%,100%{opacity:.25}30%{opacity:1}}
+
+/* ---------- emoji picker ---------- */
+.emojirow{display:flex;gap:6px;justify-content:space-between;margin-bottom:16px}
+.emojirow button{font-size:26px;line-height:1;padding:8px;border-radius:12px;flex:1}
+.emojirow button:hover{background:var(--soft)}
+.menuitem{display:flex;align-items:center;gap:12px;padding:14px 2px;width:100%;text-align:left;
+  font-size:15px;font-weight:600;border-bottom:1px solid var(--line)}
+.menuitem:last-of-type{border-bottom:0}
+.menuitem.bad{color:var(--brand-d)}
+.dropzone{position:absolute;inset:0;background:rgba(255,75,62,.12);border:3px dashed var(--brand);
+  border-radius:18px;margin:10px;z-index:15;display:none;align-items:center;justify-content:center;
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:var(--brand);pointer-events:none}
+.dropzone.on{display:flex}
 
 .oc-lock #app > .screen, .oc-lock #app > #right{display:none!important}
 .veil{position:fixed;inset:0;z-index:70;background:var(--paper);display:none;
@@ -394,6 +456,9 @@ button.rowitem:hover{background:var(--soft)}
       </button>
     </div>
 
+    <div class="searchwrap" id="chatsearch">
+      <input class="inp" id="q-chats" placeholder="Search chats" autocomplete="off" />
+    </div>
     <div class="scroll" id="tab-chats">
       <div id="chatlist"></div>
       <div class="empty" id="chats-empty">
@@ -481,6 +546,22 @@ button.rowitem:hover{background:var(--soft)}
       <div class="presets" id="mk-presets"></div>
       <p class="hint" id="mk-presethint" style="margin-top:10px"></p>
 
+      <p class="lbl" style="margin-top:26px">Panic exit</p>
+      <p class="muted sm" style="margin:-4px 0 10px">Press <b>Esc</b> three times fast and this tab
+        jumps straight to the site below. Works from anywhere in the app.</p>
+      <input class="inp" id="mk-panic" placeholder="classroom.google.com" spellcheck="false" autocapitalize="off" />
+      <button class="btn grey" id="mk-panicsave">Save panic site</button>
+      <button class="btn" id="mk-panicgo" style="margin-top:10px;background:var(--brand-d);box-shadow:0 4px 0 #8E1F17">Test it now</button>
+
+      <div class="togg">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:15px">Sound on new messages</div>
+          <div class="sm muted" style="margin-top:2px">A short blip when a message lands while you're
+            looking at another tab.</div>
+        </div>
+        <button class="sw2" id="mk-sound" aria-label="Toggle sound"><i></i></button>
+      </div>
+
       <div class="togg">
         <div style="flex:1;min-width:0">
           <div style="font-weight:700;font-size:15px">Fetch real icons</div>
@@ -534,6 +615,9 @@ button.rowitem:hover{background:var(--soft)}
       </button>
     </div>
     <div id="log"></div>
+    <div class="dropzone" id="dropzone">Drop to send</div>
+    <button class="pill" id="jump">New messages ↓</button>
+    <div class="typing" id="typing"></div>
     <div class="bar">
       <button class="circ snap" id="c-snap" aria-label="Send a photo">
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.6"/></svg>
@@ -626,6 +710,22 @@ button.rowitem:hover{background:var(--soft)}
   </div>
 
   </div><!-- /#right -->
+
+  <div class="sheet" id="msgsheet">
+    <div class="sheetin">
+      <div class="grab"></div>
+      <div class="emojirow" id="emojirow"></div>
+      <button class="menuitem" id="mm-copy">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/></svg>
+        Copy text
+      </button>
+      <button class="menuitem bad" id="mm-del">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+        Delete for everyone
+      </button>
+      <button class="btn grey" id="mm-close" style="margin-top:16px">Cancel</button>
+    </div>
+  </div>
 
   <div class="sheet" id="sheet">
     <div class="sheetin">
@@ -937,12 +1037,24 @@ function watchChats(){
   }, e => { console.error(e); toast(errText(e)); });
 }
 
+let chatFilter = '';
+function lastReadOf(c){ return (c.reads && c.reads[me.uid]) ? msOf(c.reads[me.uid]) : 0; }
+function isUnread(c){
+  const at = msOf(c.lastAt);
+  return at > 0 && at > lastReadOf(c) && c.lastBy && c.lastBy !== me.uid;
+}
+function unreadCount(){ return chats.filter(isUnread).length; }
+
 async function paintChats(){
   const box=$('chatlist'); box.innerHTML='';
-  $('chats-empty').style.display = chats.length?'none':'block';
+  const q = chatFilter.trim().toLowerCase();
+  let shown = 0;
   for (const c of chats){
     const face = await chatFace(c);
-    const b=document.createElement('button'); b.className='rowitem';
+    if (q && face.name.toLowerCase().indexOf(q) === -1) continue;
+    shown++;
+    const b=document.createElement('button');
+    b.className='rowitem' + (isUnread(c) ? ' unread' : '');
     b.appendChild(mkAv(52, face.name, face.photo));
     const mid=document.createElement('div'); mid.className='mid';
     const nm=document.createElement('div'); nm.className='nm'; nm.textContent=face.name;
@@ -951,10 +1063,17 @@ async function paintChats(){
     mid.append(nm,ds);
     const rt=document.createElement('div'); rt.className='rt'; rt.textContent=when(msOf(c.lastAt));
     b.append(mid,rt);
+    if (isUnread(c)){ const pip=document.createElement('div'); pip.className='pip'; b.appendChild(pip); }
     b.onclick = () => enterChat(c.id);
     box.appendChild(b);
   }
+  $('chats-empty').style.display = shown ? 'none' : 'block';
+  if (q && !shown) $('chats-empty').innerHTML = '<div class="big">Nothing matches</div>Try a different name.';
+  $('chatsearch').style.display = chats.length > 4 ? 'block' : 'none';
+  badgeTitle();
 }
+
+$('q-chats').addEventListener('input', () => { chatFilter = $('q-chats').value; paintChats(); });
 
 async function chatFace(c){
   if (c.type==='group') return { name:c.name||'Group', photo:c.photo||'' };
@@ -992,60 +1111,245 @@ async function enterChat(id){
   $('c-sub').textContent = openChat.type==='group' ? (openChat.memberIds||[]).length+' members' : '';
   $('log').innerHTML=''; seenMsg.clear(); lastSender=null;
   $('c-text').value=''; $('c-send').disabled=true;
-  show('s-chat'); watchMsgs(id);
+  show('s-chat'); watchMsgs(id); watchTyping(id); markRead(id);
   setTimeout(()=>$('c-text').focus(), 60);
 }
-$('c-back').onclick = () => { if(unsubMsgs) unsubMsgs(); unsubMsgs=null; openChat=null; show('s-main'); };
+async function markRead(id){
+  try { await updateDoc(doc(db,'chats',id), { ['reads.'+me.uid]: serverTimestamp() }); } catch(e){}
+}
+$('c-back').onclick = () => {
+  if (unsubMsgs) unsubMsgs();
+  if (unsubTyping) unsubTyping();
+  unsubMsgs=unsubTyping=null;
+  setTyping(false);
+  openChat=null; show('s-main');
+};
+
+let atBottom = true, pendingNew = 0, unsubTyping = null, typingTimer = null, lastTypingWrite = 0;
+
+$('log').addEventListener('scroll', () => {
+  const el = $('log');
+  atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+  if (atBottom){ pendingNew = 0; $('jump').classList.remove('on'); }
+});
+$('jump').onclick = () => {
+  $('log').scrollTop = $('log').scrollHeight;
+  pendingNew = 0; $('jump').classList.remove('on');
+};
 
 function watchMsgs(id){
   if (unsubMsgs) unsubMsgs();
+  lastDay = '';
   const q = query(collection(db,'chats',id,'messages'), orderBy('at'), limit(200));
   unsubMsgs = onSnapshot(q, async snap => {
     const log=$('log');
+    let added = 0;
     for (const ch of snap.docChanges()){
+      const d = ch.doc;
       if (ch.type==='removed'){
-        const el=log.querySelector('[data-id="'+ch.doc.id+'"]'); if(el) el.remove();
-        seenMsg.delete(ch.doc.id); continue;
+        const el=log.querySelector('[data-id="'+d.id+'"]'); if(el) el.remove();
+        seenMsg.delete(d.id); continue;
       }
-      if (seenMsg.has(ch.doc.id)) continue;
-      seenMsg.add(ch.doc.id);
-      log.appendChild(await mkMsg(ch.doc.id, ch.doc.data()));
+      if (ch.type==='modified' && seenMsg.has(d.id)){ paintReacts(d.id, d.data()); continue; }
+      if (seenMsg.has(d.id)) continue;
+      seenMsg.add(d.id);
+      const data = d.data();
+      if (data.cid){ const tmp = log.querySelector('[data-cid="'+data.cid+'"]'); if (tmp) tmp.remove(); }
+      log.appendChild(await mkMsg(d.id, data));
+      if (data.uid !== me.uid) added++;
     }
-    log.scrollTop = log.scrollHeight;
+    if (added && !atBottom){
+      pendingNew += added;
+      $('jump').textContent = pendingNew + ' new message' + (pendingNew>1?'s':'') + ' ↓';
+      $('jump').classList.add('on');
+    }
+    if (atBottom) log.scrollTop = log.scrollHeight;
+    if (added){ if (document.hidden) blip(); markRead(id); }
   }, e => { console.error(e); toast(errText(e)); });
+}
+
+/* ---------- typing ---------- */
+function watchTyping(id){
+  if (unsubTyping) unsubTyping();
+  unsubTyping = onSnapshot(collection(db,'chats',id,'typing'), async snap => {
+    const now = Date.now(), names = [];
+    for (const d of snap.docs){
+      if (d.id === me.uid) continue;
+      if (now - msOf(d.data().at) > 8000) continue;
+      const u = await getUser(d.id);
+      names.push((u.name||u.username).split(' ')[0]);
+    }
+    const t = $('typing');
+    if (!names.length){ t.textContent=''; return; }
+    const who = names.length===1 ? names[0]+' is typing'
+      : names.length===2 ? names.join(' and ')+' are typing'
+      : 'Several people are typing';
+    t.innerHTML = '';
+    t.appendChild(document.createTextNode(who));
+    for (let i=0;i<3;i++) t.appendChild(document.createElement('i'));
+  }, e => console.warn('typing:', e.message));
+}
+
+async function setTyping(on){
+  if (!openChat) return;
+  const ref = doc(db,'chats',openChat.id,'typing',me.uid);
+  try { on ? await setDoc(ref,{ at: serverTimestamp() }) : await deleteDoc(ref); } catch(e){}
+}
+
+/* ---------- rendering ---------- */
+let lastDay = '';
+const URL_RE = /(https?:\/\/[^\s<>"']+|www\.[^\s<>"']+)/gi;
+
+function linkify(text, into){
+  let last = 0, m;
+  URL_RE.lastIndex = 0;
+  while ((m = URL_RE.exec(text)) !== null){
+    if (m.index > last) into.appendChild(document.createTextNode(text.slice(last, m.index)));
+    const a = document.createElement('a');
+    a.href = m[0].startsWith('http') ? m[0] : 'https://' + m[0];
+    a.target = '_blank'; a.rel = 'noopener noreferrer nofollow';
+    a.textContent = m[0];
+    a.onclick = e => e.stopPropagation();
+    into.appendChild(a);
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) into.appendChild(document.createTextNode(text.slice(last)));
+}
+
+function dayLabel(ms){
+  const d=new Date(ms), n=new Date(), day=864e5;
+  const mid=new Date(n.getFullYear(),n.getMonth(),n.getDate()).getTime();
+  if (d.getTime()>=mid) return 'Today';
+  if (d.getTime()>=mid-day) return 'Yesterday';
+  if (d.getTime()>=mid-6*day) return d.toLocaleDateString([], {weekday:'long'});
+  return d.toLocaleDateString([], {month:'long', day:'numeric'});
 }
 
 async function mkMsg(id, m){
   const mine = m.uid===me.uid;
   const u = mine ? profile : await getUser(m.uid);
+  const at = msOf(m.at) || Date.now();
+  const wrap=document.createElement('div');
+  wrap.dataset.id = id;
+
+  const dl = dayLabel(at);
+  if (dl !== lastDay){
+    lastDay = dl;
+    const sep=document.createElement('div'); sep.className='daysep'; sep.textContent=dl;
+    wrap.appendChild(sep);
+    lastSender = null;
+  }
+
   const key = mine ? '\u0000me' : m.uid;
   const first = key !== lastSender;
   lastSender = key;
 
-  const wrap=document.createElement('div'); wrap.dataset.id=id;
   if (first && !mine && openChat && openChat.type==='group'){
     const n=document.createElement('div'); n.className='gname';
     n.textContent = u.name || ('@'+u.username);
     wrap.appendChild(n);
   }
+
   const line=document.createElement('div');
   line.className='mline'+(mine?' mine':'')+(first?' first':'');
   line.appendChild(mkAv(28, u.name||u.username, u.photo));
   const bub=document.createElement('div'); bub.className='bub';
   if (m.img){
     bub.classList.add('photo');
-    const img=document.createElement('img'); img.src=m.img; img.alt='Photo';
+    const img=document.createElement('img'); img.src=m.img; img.alt='Photo'; img.loading='lazy';
     img.onclick = () => { $('lbimg').src=m.img; $('lightbox').classList.add('on'); };
     bub.appendChild(img);
   } else {
-    bub.textContent = m.text || '';
+    linkify(m.text || '', bub);
   }
-  line.appendChild(bub); wrap.appendChild(line);
+  line.appendChild(bub);
+
+  let press;
+  const openMenu = e => { e.preventDefault(); msgMenu(id, m); };
+  bub.addEventListener('contextmenu', openMenu);
+  bub.addEventListener('pointerdown', () => { press = setTimeout(() => msgMenu(id, m), 480); });
+  ['pointerup','pointerleave','pointercancel','pointermove'].forEach(ev =>
+    bub.addEventListener(ev, () => clearTimeout(press)));
+
+  wrap.appendChild(line);
+
+  const st=document.createElement('div'); st.className='stamp';
+  st.textContent = new Date(at).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+  wrap.appendChild(st);
+
+  const rc=document.createElement('div'); rc.className='reacts'; rc.dataset.react=id;
+  wrap.appendChild(rc);
+  drawReacts(rc, m.reactions);
   return wrap;
 }
+
+function drawReacts(box, reactions){
+  box.innerHTML = '';
+  if (!reactions) return;
+  Object.keys(reactions).forEach(emo => {
+    const uids = reactions[emo] || [];
+    if (!uids.length) return;
+    const s=document.createElement('span');
+    s.className = 'react' + (uids.includes(me.uid) ? ' mine' : '');
+    s.textContent = emo + ' ' + uids.length;
+    box.appendChild(s);
+  });
+}
+function paintReacts(id, data){
+  const box = $('log').querySelector('[data-react="'+id+'"]');
+  if (box) drawReacts(box, data.reactions);
+}
+
+/* ---------- message menu ---------- */
+const EMOJI = ['❤️','😂','👍','🔥','😮','😢'];
+let menuFor = null;
+(function(){
+  const row=$('emojirow');
+  EMOJI.forEach(e=>{
+    const b=document.createElement('button'); b.textContent=e;
+    b.onclick = () => { if (menuFor) react(menuFor.id, e); $('msgsheet').classList.remove('on'); };
+    row.appendChild(b);
+  });
+})();
+function msgMenu(id, m){
+  menuFor = { id, m };
+  $('mm-copy').style.display = m.text ? 'flex' : 'none';
+  $('mm-del').style.display = m.uid === me.uid ? 'flex' : 'none';
+  $('msgsheet').classList.add('on');
+}
+$('mm-close').onclick = () => $('msgsheet').classList.remove('on');
+$('msgsheet').addEventListener('click', e => { if (e.target===$('msgsheet')) $('msgsheet').classList.remove('on'); });
+$('mm-copy').onclick = () => { if (menuFor) copy(menuFor.m.text, 'Copied'); $('msgsheet').classList.remove('on'); };
+$('mm-del').onclick = async () => {
+  $('msgsheet').classList.remove('on');
+  if (!menuFor || !openChat) return;
+  try { await deleteDoc(doc(db,'chats',openChat.id,'messages',menuFor.id)); toast('Deleted'); }
+  catch(e){ console.error(e); toast(errText(e)); }
+};
+
+async function react(msgId, emo){
+  if (!openChat) return;
+  const ref = doc(db,'chats',openChat.id,'messages',msgId);
+  try {
+    const s = await getDoc(ref);
+    if (!s.exists()) return;
+    const r = s.data().reactions || {};
+    const list = r[emo] || [];
+    r[emo] = list.includes(me.uid) ? list.filter(x=>x!==me.uid) : list.concat([me.uid]);
+    if (!r[emo].length) delete r[emo];
+    await updateDoc(ref, { reactions: r });
+  } catch(e){ console.error(e); toast(errText(e)); }
+}
+
 $('lightbox').onclick = () => $('lightbox').classList.remove('on');
 
-$('c-text').addEventListener('input', ()=>{ $('c-send').disabled = !$('c-text').value.trim(); });
+$('c-text').addEventListener('input', ()=>{
+  $('c-send').disabled = !$('c-text').value.trim();
+  const now = Date.now();
+  if ($('c-text').value.trim() && now - lastTypingWrite > 4000){ lastTypingWrite = now; setTyping(true); }
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(()=>{ lastTypingWrite = 0; setTyping(false); }, 5000);
+});
 $('c-text').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); sendMsg(); } });
 $('c-send').onclick = sendMsg;
 
@@ -1056,7 +1360,9 @@ async function pushMessage(payload, preview){
     Object.assign({ uid: me.uid, at: serverTimestamp() }, payload));
   await updateDoc(doc(db,'chats',chatId), {
     lastMessage: (profile.name ? profile.name.split(' ')[0]+': ' : '') + preview,
-    lastAt: serverTimestamp()
+    lastAt: serverTimestamp(),
+    lastBy: me.uid,
+    ['reads.'+me.uid]: serverTimestamp()
   });
 }
 
@@ -1064,10 +1370,56 @@ async function sendMsg(){
   const text=$('c-text').value.trim();
   if (!text || !openChat) return;
   $('c-text').value=''; $('c-send').disabled=true;
-  try { await pushMessage({ text }, text.slice(0,60)); }
-  catch(e){ console.error(e); toast(errText(e)); $('c-text').value=text; $('c-send').disabled=false; }
+  clearTimeout(typingTimer); lastTypingWrite = 0; setTyping(false);
+
+  /* echo it locally so the bubble appears the instant you hit enter */
+  const cid = 'c'+Date.now()+Math.random().toString(36).slice(2,7);
+  const ghost = await mkMsg('pending-'+cid, { uid:me.uid, text, at:{toMillis:()=>Date.now()} });
+  ghost.dataset.cid = cid;
+  ghost.querySelector('.mline').classList.add('pending');
+  $('log').appendChild(ghost);
+  $('log').scrollTop = $('log').scrollHeight;
+
+  try { await pushMessage({ text, cid }, text.slice(0,60)); }
+  catch(e){
+    console.error(e); toast(errText(e));
+    ghost.remove();
+    $('c-text').value=text; $('c-send').disabled=false;
+  }
   $('c-text').focus();
 }
+
+/* ---------- paste / drop a picture straight into the chat ---------- */
+document.addEventListener('paste', e => {
+  if (!openChat || !$('s-chat').classList.contains('on')) return;
+  const items = (e.clipboardData && e.clipboardData.items) || [];
+  for (const it of items){
+    if (it.type && it.type.indexOf('image/') === 0){
+      const f = it.getAsFile();
+      if (!f) continue;
+      e.preventDefault();
+      const fr = new FileReader();
+      fr.onload = () => openEditor(fr.result);
+      fr.readAsDataURL(f);
+      return;
+    }
+  }
+});
+['dragenter','dragover'].forEach(ev => $('s-chat').addEventListener(ev, e => {
+  if (!openChat) return;
+  e.preventDefault(); $('dropzone').classList.add('on');
+}));
+['dragleave','dragend'].forEach(ev => $('s-chat').addEventListener(ev, e => {
+  if (e.target === $('s-chat')) $('dropzone').classList.remove('on');
+}));
+$('s-chat').addEventListener('drop', e => {
+  e.preventDefault(); $('dropzone').classList.remove('on');
+  const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (!f || !/^image\//.test(f.type)) return;
+  const fr = new FileReader();
+  fr.onload = () => openEditor(fr.result);
+  fr.readAsDataURL(f);
+});
 
 /* ================= CAMERA ================= */
 let camStream=null, facing='environment', backTo='s-chat';
@@ -1388,6 +1740,34 @@ $('c-info').onclick = async () => {
     const btn=document.createElement('button'); btn.className='btn'; btn.textContent='Copy invite link';
     btn.onclick = () => copy(groupLink(openChat.id),'Invite link copied');
     body.append(p,box,btn);
+    const rn=document.createElement('button'); rn.className='btn grey'; rn.style.marginTop='10px';
+    rn.textContent='Rename group';
+    rn.onclick = async () => {
+      const name = prompt('New group name', openChat.name || '');
+      if (name === null) return;
+      const clean = name.trim().slice(0,40);
+      if (!clean){ toast('Groups need a name'); return; }
+      try {
+        await updateDoc(doc(db,'chats',openChat.id), { name: clean });
+        openChat.name = clean; $('c-title').textContent = clean;
+        $('sheet').classList.remove('on'); toast('Renamed');
+      } catch(e){ console.error(e); toast(errText(e)); }
+    };
+    const lv=document.createElement('button'); lv.className='btn line'; lv.style.cssText='margin-top:10px;color:var(--brand-d)';
+    lv.textContent='Leave group';
+    lv.onclick = async () => {
+      if (!confirm('Leave "'+(openChat.name||'this group')+'"? You will need a new invite link to get back in.')) return;
+      try {
+        await updateDoc(doc(db,'chats',openChat.id), {
+          memberIds: (openChat.memberIds||[]).filter(x => x !== me.uid)
+        });
+        $('sheet').classList.remove('on');
+        if (unsubMsgs) unsubMsgs();
+        unsubMsgs=null; openChat=null; show('s-main'); toast('Left the group');
+      } catch(e){ console.error(e); toast(errText(e)); }
+    };
+    body.append(rn, lv);
+
     const pl=document.createElement('p'); pl.className='lbl'; pl.style.marginTop='22px';
     pl.textContent='Members'; body.appendChild(pl);
     for (const uid of (openChat.memberIds||[])){
@@ -1533,6 +1913,90 @@ async function paintStaff(){
   foot.textContent = note;
   box.appendChild(foot);
 }
+
+/* ================= PANIC EXIT, SOUND, TITLE BADGE ================= */
+let panicHost = localStorage.getItem('oc.panic') || 'classroom.google.com';
+let soundOn = localStorage.getItem('oc.sound') !== '0';
+
+$('mk-panic').value = panicHost;
+$('mk-sound').classList.toggle('on', soundOn);
+
+$('mk-panicsave').onclick = () => {
+  const hostv = hostOf($('mk-panic').value);
+  if (!hostv){ toast('That does not look like a web address'); return; }
+  panicHost = hostv;
+  localStorage.setItem('oc.panic', hostv);
+  $('mk-panic').value = hostv;
+  toast('Panic site saved');
+};
+$('mk-panicgo').onclick = () => panic();
+$('mk-sound').onclick = () => {
+  soundOn = !soundOn;
+  localStorage.setItem('oc.sound', soundOn ? '1' : '0');
+  $('mk-sound').classList.toggle('on', soundOn);
+  if (soundOn) blip();
+};
+
+function panic(){
+  const target = 'https://' + (panicHost || 'classroom.google.com');
+  try { if (window.parent && window.parent !== window){ window.parent.location.replace(target); return; } } catch(e){}
+  location.replace(target);
+}
+
+/* three Escapes inside a second and a half */
+let escHits = [];
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if ($('sheet').classList.contains('on') || $('msgsheet').classList.contains('on') || $('lightbox').classList.contains('on')){
+    $('sheet').classList.remove('on'); $('msgsheet').classList.remove('on'); $('lightbox').classList.remove('on');
+    return;
+  }
+  const now = Date.now();
+  escHits = escHits.filter(t => now - t < 1500);
+  escHits.push(now);
+  if (escHits.length >= 3){ escHits = []; panic(); }
+});
+
+let audioCtx = null;
+function blip(){
+  if (!soundOn) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.type = 'sine'; o.frequency.value = 780;
+    g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.13, audioCtx.currentTime + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.22);
+    o.start(); o.stop(audioCtx.currentTime + 0.24);
+  } catch(e){}
+}
+
+/* unread count in the tab title, using whatever disguise is active */
+function badgeTitle(){
+  const n = (typeof unreadCount === 'function' && me) ? unreadCount() : 0;
+  const base = (mask && mask.title) || 'OpenCase';
+  const t = n > 0 ? '(' + n + ') ' + base : base;
+  document.title = t;
+  try { if (window.parent && window.parent !== window) window.parent.document.title = t; } catch(e){}
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) badgeTitle(); });
+
+/* ---------- keyboard shortcuts ---------- */
+document.addEventListener('keydown', e => {
+  if (!me || !profile) return;
+  const typing = /^(INPUT|TEXTAREA)$/.test(document.activeElement && document.activeElement.tagName);
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k'){
+    e.preventDefault(); show('s-main'); setTab('chats');
+    setTimeout(()=>$('q-chats').focus(), 60);
+  }
+  if (!typing && e.key === '/' && $('s-main').classList.contains('on')){
+    e.preventDefault(); setTab('chats'); setTimeout(()=>$('q-chats').focus(), 40);
+  }
+});
+
+/* keep the typing flag from getting stuck if the tab closes mid-sentence */
+window.addEventListener('beforeunload', () => { try { setTyping(false); } catch(e){} });
 
 paintMaskPreview();
 
