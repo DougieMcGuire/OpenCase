@@ -161,7 +161,7 @@ button.rowitem:hover{background:var(--soft)}
 .mline{display:flex;align-items:flex-end;gap:8px;margin-bottom:3px}
 .mline .av{visibility:hidden}
 .mline.first .av{visibility:visible}
-.bub{max-width:74%;padding:9px 14px;border-radius:19px;font-size:15px;line-height:1.4;
+.bub{max-width:74%;padding:9px 14px;border-radius:19px;font-size:var(--bubfs,15px);line-height:1.4;
   background:var(--soft);white-space:pre-wrap;overflow-wrap:anywhere}
 .mline.mine{flex-direction:row-reverse}
 .mline.mine .av{display:none}
@@ -317,13 +317,99 @@ button.rowitem:hover{background:var(--soft)}
   border-radius:18px;margin:10px;z-index:15;display:none;align-items:center;justify-content:center;
   font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:var(--brand);pointer-events:none}
 .dropzone.on{display:flex}
+
+/* ---------- camera v2 ---------- */
+#s-cam{background:#000;color:#fff}
+.camtop{display:flex;justify-content:space-between;padding:calc(12px + env(safe-area-inset-top)) 16px 8px;flex:none}
+#cam-stage{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#cam{width:100%;height:100%;object-fit:cover;background:#000}
+.camhint{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);color:#fff;font-size:13px;
+  font-weight:600;background:rgba(0,0,0,.4);padding:7px 14px;border-radius:99px;backdrop-filter:blur(6px);white-space:nowrap}
+.rec{position:absolute;top:14px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:7px;
+  background:rgba(0,0,0,.55);padding:6px 13px;border-radius:99px;font-weight:700;font-size:14px;backdrop-filter:blur(6px)}
+.rec.on{display:flex}
+.rec i{width:10px;height:10px;border-radius:50%;background:#FF3B30;animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.camrow{display:flex;align-items:center;justify-content:space-around;
+  padding:18px 24px calc(24px + env(safe-area-inset-bottom));flex:none}
+.camico{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;
+  display:grid;place-items:center;backdrop-filter:blur(6px)}
+.camico:active{background:rgba(255,255,255,.28)}
+.camico.big{width:54px;height:54px}
+.shutter{width:78px;height:78px;border-radius:50%;background:transparent;border:5px solid #fff;
+  display:grid;place-items:center;position:relative;transition:transform .1s}
+.shutter i{width:60px;height:60px;border-radius:50%;background:#fff;transition:all .18s}
+.shutter.rec i{border-radius:10px;width:32px;height:32px;background:#FF3B30}
+.shutter:active{transform:scale(.94)}
+
+.bub.video{padding:4px;position:relative}
+.bub.video video{display:block;max-width:250px;width:100%;border-radius:15px}
+.playbadge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:48px;height:48px;
+  border-radius:50%;background:rgba(0,0,0,.5);display:grid;place-items:center;pointer-events:none;backdrop-filter:blur(3px)}
+
+/* ---------- read receipts ---------- */
+.seen{font-size:11px;color:var(--faint);text-align:right;margin:1px 6px 4px 0;font-weight:500}
+.seenav{display:inline-flex;align-items:center;gap:-4px;vertical-align:middle;margin-left:4px}
+.seenav .av{width:15px;height:15px;font-size:8px;margin-left:-4px;border:1.5px solid var(--paper)}
+
+/* ---------- reply-to ---------- */
+.replybar{display:none;align-items:center;gap:10px;padding:8px 14px;border-top:1px solid var(--line);
+  background:var(--soft);flex:none}
+.replybar.on{display:flex}
+.replybar .rl{flex:1;min-width:0;border-left:3px solid var(--brand);padding-left:9px}
+.replybar .rl .who{font-size:12px;font-weight:700;color:var(--brand)}
+.replybar .rl .tx{font-size:13px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.quoted{border-left:3px solid rgba(255,255,255,.5);padding:3px 0 3px 8px;margin-bottom:5px;font-size:13px;opacity:.85}
+.mline:not(.mine) .quoted{border-left-color:var(--brand)}
+.quoted .qw{font-weight:700;font-size:12px;display:block}
+
+/* ---------- FAB ---------- */
+.fab{position:absolute;right:18px;bottom:calc(76px + env(safe-area-inset-bottom));width:56px;height:56px;
+  border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;
+  box-shadow:0 6px 18px rgba(255,75,62,.4);z-index:14}
+.fab:active{transform:scale(.94)}
+@media (min-width:900px){#app.in .fab{right:calc(100% - var(--side) + 18px)}}
+
+/* ---------- polish additions ---------- */
+.mline .bub{transition:transform .12s ease}
+.mline.swiping .bub{transform:translateX(30px)}
+.swipehint{position:absolute;left:-30px;top:50%;transform:translateY(-50%);opacity:0;color:var(--brand);transition:opacity .12s}
+.editflag{font-size:10.5px;color:var(--faint);font-style:italic;margin-left:5px}
+.online{width:11px;height:11px;border-radius:50%;background:var(--ok);border:2px solid var(--paper);
+  position:absolute;right:-1px;bottom:-1px}
+.av-wrap{position:relative;flex:none}
+.charcount{position:absolute;right:64px;bottom:16px;font-size:11px;color:var(--faint);font-weight:600;pointer-events:none;display:none}
+.charcount.on{display:block}
+.charcount.warn{color:var(--brand-d)}
+.pinned{background:var(--brand-soft);border-bottom:1px solid var(--line);padding:9px 16px;
+  display:none;align-items:center;gap:9px;flex:none;cursor:pointer}
+.pinned.on{display:flex}
+.pinned svg{color:var(--brand);flex:none}
+.pinned .pt{flex:1;min-width:0;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reactfly{position:fixed;pointer-events:none;font-size:26px;z-index:95;animation:fly .8s ease-out forwards}
+@keyframes fly{0%{opacity:1;transform:scale(.5)}40%{opacity:1;transform:scale(1.3)}100%{opacity:0;transform:scale(1) translateY(-40px)}}
+.toggle-list .togg:first-child{border-top:0}
+.settingrow{display:flex;align-items:center;gap:13px;padding:14px 2px;width:100%;text-align:left;
+  border-bottom:1px solid var(--line);font-size:15px;font-weight:600}
+.settingrow:last-child{border-bottom:0}
+.settingrow svg{color:var(--dim);flex:none}
+.settingrow .chev{margin-left:auto;color:var(--faint)}
+.mm-time{text-align:center;font-size:12.5px;color:var(--faint);padding:2px 0 12px;font-weight:500}
 </style>
 </head>
 <body>
 <div id="app">
 
+  <!-- ============ LOADING ============ -->
+  <section id="s-loading" class="screen">
+    <div style="margin:auto;text-align:center">
+      <div class="logo" style="font-size:40px">Open<em>Case</em></div>
+      <div class="spin" style="margin:22px auto 0;border-color:var(--line);border-top-color:var(--brand);width:26px;height:26px"></div>
+    </div>
+  </section>
+
   <!-- ============ AUTH ============ -->
-  <section id="s-auth" class="screen on">
+  <section id="s-auth" class="screen">
     <div class="scroll"><div class="pad narrow" style="padding-top:8vh">
       <div class="logo">Open<em>Case</em></div>
       <p class="muted" id="authblurb" style="margin:8px 0 24px">Private chats on a link nobody can guess.</p>
@@ -413,7 +499,7 @@ button.rowitem:hover{background:var(--soft)}
     <div class="searchwrap" id="chatsearch">
       <input class="inp" id="q-chats" placeholder="Search chats" autocomplete="off" />
     </div>
-    <div class="scroll" id="tab-chats">
+    <div class="scroll" id="tab-chats" style="position:relative">
       <div id="chatlist"></div>
       <div class="empty" id="chats-empty">
         <span class="emoji">💬</span>
@@ -439,8 +525,10 @@ button.rowitem:hover{background:var(--soft)}
 
       <p class="lbl" style="margin-top:24px">Friends</p>
       <div id="friendlist"></div>
-      <div class="empty" id="friends-empty" style="padding:22px 6px">
-        Nobody yet. Send your link and they land straight on your profile.
+      <div class="empty" id="friends-empty" style="padding:26px 6px">
+        <span class="emoji">👋</span>
+        <div class="big">No friends yet</div>
+        Share your invite link and anyone who opens it can add you in one tap.
       </div>
       <button class="btn grey" id="f-invite" style="margin-top:14px">Copy my invite link</button>
     </div></div>
@@ -467,9 +555,13 @@ button.rowitem:hover{background:var(--soft)}
       <div class="card sm" style="word-break:break-all;color:var(--dim)" id="me-link">—</div>
       <button class="btn grey" id="me-copy">Copy link</button>
 
-      <p class="lbl" style="margin-top:24px">Privacy</p>
-      <button class="btn line" id="me-mask" style="justify-content:space-between">
+      <p class="lbl" style="margin-top:24px">Privacy &amp; settings</p>
+      <button class="btn line" id="me-mask" style="justify-content:space-between;margin-bottom:10px">
         <span id="me-maskline">Disguise this tab</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <button class="btn line" id="me-settings" style="justify-content:space-between">
+        <span>Settings</span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </button>
 
@@ -567,15 +659,26 @@ button.rowitem:hover{background:var(--soft)}
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
       </button>
     </div>
+    <div class="pinned" id="pinned">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10.8V4h6v6.8l2 3.2H7z"/></svg>
+      <div class="pt" id="pinned-tx"></div>
+    </div>
     <div id="log"></div>
     <div class="dropzone" id="dropzone">Drop to send</div>
     <button class="pill" id="jump">New messages ↓</button>
     <div class="typing" id="typing"></div>
+    <div class="replybar" id="replybar">
+      <div class="rl"><div class="who" id="reply-who"></div><div class="tx" id="reply-tx"></div></div>
+      <button class="ico" id="reply-x" aria-label="Cancel reply">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
     <div class="bar">
       <button class="circ snap" id="c-snap" aria-label="Send a photo">
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.6"/></svg>
       </button>
       <input class="inp" id="c-text" placeholder="Message" maxlength="2000" autocomplete="off" />
+      <div class="charcount" id="charcount"></div>
       <button class="circ send" id="c-send" disabled aria-label="Send">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg>
       </button>
@@ -603,20 +706,22 @@ button.rowitem:hover{background:var(--soft)}
 
   <!-- ============ CAMERA ============ -->
   <section id="s-cam" class="screen">
-    <div class="top">
-      <button class="ico" id="cam-close" aria-label="Close">
-        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    <div class="camtop">
+      <button class="camico" id="cam-close" aria-label="Close">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
-      <div class="ttl">Camera</div>
     </div>
-    <div class="stage"><video id="cam" playsinline muted autoplay></video></div>
+    <div class="stage" id="cam-stage">
+      <video id="cam" playsinline muted autoplay></video>
+      <div class="camhint" id="cam-hint">Tap to take a photo</div>
+    </div>
     <div class="camrow">
-      <button class="camico" id="cam-pick" aria-label="Choose a photo">
-        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 16l5-5 4 4 3-3 6 6"/></svg>
+      <button class="camico big" id="cam-pick" aria-label="Choose from gallery">
+        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 16l5-5 4 4 3-3 6 6"/></svg>
       </button>
-      <button class="shutter" id="cam-shot" aria-label="Take photo"></button>
-      <button class="camico" id="cam-flip" aria-label="Flip camera">
-        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+      <button class="shutter" id="cam-shot" aria-label="Take photo or hold for video"><i></i></button>
+      <button class="camico big" id="cam-flip" aria-label="Flip camera">
+        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
       </button>
     </div>
     <input type="file" id="cam-file" accept="image/*" hidden />
@@ -668,9 +773,22 @@ button.rowitem:hover{background:var(--soft)}
     <div class="sheetin">
       <div class="grab"></div>
       <div class="emojirow" id="emojirow"></div>
+      <div class="mm-time" id="mm-time"></div>
+      <button class="menuitem" id="mm-reply">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17l-5-5 5-5"/><path d="M4 12h11a5 5 0 0 1 0 10h-1"/></svg>
+        Reply
+      </button>
       <button class="menuitem" id="mm-copy">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/></svg>
         Copy text
+      </button>
+      <button class="menuitem" id="mm-edit">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+        Edit
+      </button>
+      <button class="menuitem" id="mm-pin">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10.8V4h6v6.8l2 3.2H7z"/></svg>
+        Pin to top
       </button>
       <button class="menuitem bad" id="mm-del">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
@@ -685,6 +803,41 @@ button.rowitem:hover{background:var(--soft)}
       <div class="grab"></div>
       <div id="sheetbody"></div>
       <button class="btn grey" id="sheetclose" style="margin-top:16px">Close</button>
+    </div>
+  </div>
+
+  <div class="sheet" id="setsheet">
+    <div class="sheetin">
+      <div class="grab"></div>
+      <div class="h2" style="margin-bottom:14px">Settings</div>
+      <div class="toggle-list">
+        <div class="togg" style="border-top:0">
+          <div style="flex:1"><div style="font-weight:700;font-size:15px">Send on Enter</div>
+            <div class="sm muted" style="margin-top:2px">Off = Enter makes a new line, button sends.</div></div>
+          <button class="sw2" id="set-enter"><i></i></button>
+        </div>
+        <div class="togg">
+          <div style="flex:1"><div style="font-weight:700;font-size:15px">Message sounds</div>
+            <div class="sm muted" style="margin-top:2px">Blip when a message lands in the background.</div></div>
+          <button class="sw2" id="set-sound"><i></i></button>
+        </div>
+        <div class="togg">
+          <div style="flex:1"><div style="font-weight:700;font-size:15px">Show typing status</div>
+            <div class="sm muted" style="margin-top:2px">Let others see when you're writing.</div></div>
+          <button class="sw2" id="set-typing"><i></i></button>
+        </div>
+        <div class="togg">
+          <div style="flex:1"><div style="font-weight:700;font-size:15px">Send read receipts</div>
+            <div class="sm muted" style="margin-top:2px">Off and you won't send or see "Seen".</div></div>
+          <button class="sw2" id="set-receipts"><i></i></button>
+        </div>
+        <div class="togg">
+          <div style="flex:1"><div style="font-weight:700;font-size:15px">Big text</div>
+            <div class="sm muted" style="margin-top:2px">Larger message bubbles.</div></div>
+          <button class="sw2" id="set-bigtext"><i></i></button>
+        </div>
+      </div>
+      <button class="btn grey" id="set-close" style="margin-top:16px">Done</button>
     </div>
   </div>
 
@@ -759,7 +912,6 @@ const msOf = t => (t && typeof t.toMillis==='function') ? t.toMillis() : 0;
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-setPersistence(auth, browserLocalPersistence).catch(()=>{});
 
 let me=null, profile=null, chats=[], friends=[], reqs=[];
 let unsubChats=null, unsubFriends=null, unsubReqs=null, unsubMsgs=null;
@@ -767,9 +919,9 @@ let openChat=null, lastSender=null;
 const userCache = new Map();
 const seenMsg = new Set();
 
-async function getUser(uid){
-  if (userCache.has(uid)) return userCache.get(uid);
-  let u = {uid, name:'Unknown', username:'unknown', photo:''};
+async function getUser(uid, fresh){
+  if (!fresh && userCache.has(uid)) return userCache.get(uid);
+  let u = userCache.get(uid) || {uid, name:'Unknown', username:'unknown', photo:''};
   try { const s = await getDoc(doc(db,'users',uid));
         if (s.exists()) u = Object.assign({uid}, s.data()); } catch(e){}
   userCache.set(uid,u); return u;
@@ -887,28 +1039,58 @@ $('su-go').onclick = async () => {
 $('su-out').onclick = () => signOut(auth);
 
 /* ================= BOOT ================= */
-onAuthStateChanged(auth, async u => {
-  detach();
-  me = u;
-  if (!u){
-    profile=null; userCache.clear();
-    $('app').classList.remove('in');
-    show('s-auth'); inviteBanner(); return;
-  }
-  let s;
-  try { s = await getDoc(doc(db,'users',u.uid)); }
-  catch(e){ console.error(e); toast(errText(e)); return; }
-  if (!s.exists()){ $('app').classList.remove('in'); show('s-setup'); return; }
-  profile = Object.assign({uid:u.uid}, s.data());
-  userCache.set(u.uid, profile);
-  await afterProfile();
-});
+let bootToken = 0;
+
+async function bootAuth(){
+  /* persistence MUST finish before we listen, or the first auth event can race
+     the token and the profile read fails — the "refresh a few times" bug */
+  try { await setPersistence(auth, browserLocalPersistence); } catch(e){ console.warn('persistence:', e.message); }
+
+  onAuthStateChanged(auth, async u => {
+    const mine = ++bootToken;
+    detach();
+    me = u;
+    if (!u){
+      profile=null; userCache.clear();
+      $('app').classList.remove('in');
+      show('s-auth'); inviteBanner(); return;
+    }
+    show('s-loading');
+    let s;
+    try { s = await getDoc(doc(db,'users',u.uid)); }
+    catch(e){
+      console.error(e);
+      if (mine !== bootToken) return;
+      /* transient read failure right after sign-in — retry once, then surface it */
+      try { await new Promise(r=>setTimeout(r,700)); s = await getDoc(doc(db,'users',u.uid)); }
+      catch(e2){ if (mine!==bootToken) return; show('s-auth'); $('a-err').textContent = errText(e2); return; }
+    }
+    if (mine !== bootToken) return;
+    if (!s.exists()){ $('app').classList.remove('in'); show('s-setup'); return; }
+    profile = Object.assign({uid:u.uid}, s.data());
+    userCache.set(u.uid, profile);
+    await afterProfile();
+  });
+}
+bootAuth();
 
 function detach(){
+  stopPresence();
   [unsubChats,unsubFriends,unsubReqs,unsubMsgs].forEach(f=>{ if(f) f(); });
   unsubChats=unsubFriends=unsubReqs=unsubMsgs=null;
   chats=[]; friends=[]; reqs=[]; openChat=null;
 }
+
+let presenceTimer = null;
+function startPresence(){
+  stopPresence();
+  const beat = () => { if (me) updateDoc(doc(db,'users',me.uid), { lastSeen: serverTimestamp() }).catch(()=>{}); };
+  beat();
+  presenceTimer = setInterval(() => { if (!document.hidden) beat(); }, 45000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) beat(); });
+}
+function stopPresence(){ if (presenceTimer){ clearInterval(presenceTimer); presenceTimer=null; } }
+const isOnline = u => u && u.lastSeen && (Date.now() - msOf(u.lastSeen) < 70000);
 
 async function afterProfile(){
   if (!profile){
@@ -918,7 +1100,7 @@ async function afterProfile(){
     userCache.set(me.uid, profile);
   }
   $('app').classList.add('in');
-  paintMe(); watchChats(); watchFriends(); watchReqs();
+  paintMe(); watchChats(); watchFriends(); watchReqs(); startPresence();
   show('s-main'); setTab('chats');
   await consumeHash();
 }
@@ -970,6 +1152,7 @@ $('nav').addEventListener('click', e => {
 });
 function setTab(t){
   ['chats','friends','mask','me','staff'].forEach(k => $('tab-'+k).style.display = k===t?'block':'none');
+  const sc = $('tab-'+t); if (sc && sc.scrollTo) sc.scrollTo(0,0);
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on', b.dataset.tab===t));
   $('m-title').textContent = {chats:'Chats',friends:'Friends',mask:'Mask',me:'Me',staff:'Staff'}[t];
   if (t==='mask'){ paintMaskPreview(); loadPresets(); }
@@ -1052,29 +1235,46 @@ async function openDM(otherUid){
   catch(e){ console.error(e); toast(errText(e)); }
 }
 
+let unsubChatDoc=null;
 async function enterChat(id){
   try {
     const s = await getDoc(doc(db,'chats',id));
     if (!s.exists()){ toast('That chat is gone'); return; }
     openChat = Object.assign({id}, s.data());
   } catch(e){ console.error(e); toast(errText(e)); return; }
+  if (unsubChatDoc) unsubChatDoc();
+  unsubChatDoc = onSnapshot(doc(db,'chats',id), snap => {
+    if (!snap.exists() || !openChat || openChat.id!==id) return;
+    openChat = Object.assign({id}, snap.data());
+    paintSeen(); paintPinned();
+  }, ()=>{});
+  clearReply();
   const face = await chatFace(openChat);
   $('c-title').textContent = face.name;
   paintAv($('c-av'), face.name, face.photo);
-  $('c-sub').textContent = openChat.type==='group' ? (openChat.memberIds||[]).length+' members' : '';
+  if (openChat.type==='group'){
+    $('c-sub').textContent = (openChat.memberIds||[]).length+' members';
+  } else {
+    const other=(openChat.memberIds||[]).find(x=>x!==me.uid);
+    if (other){ const u=await getUser(other, true); $('c-sub').textContent = isOnline(u) ? 'Active now' : ''; }
+    else $('c-sub').textContent='';
+  }
   $('log').innerHTML=''; seenMsg.clear(); lastSender=null;
   $('c-text').value=''; $('c-send').disabled=true;
   show('s-chat'); watchMsgs(id); watchTyping(id); markRead(id);
   setTimeout(()=>$('c-text').focus(), 60);
 }
 async function markRead(id){
+  if (!getSet('receipts')) return;
   try { await updateDoc(doc(db,'chats',id), { ['reads.'+me.uid]: serverTimestamp() }); } catch(e){}
 }
 $('c-back').onclick = () => {
   if (unsubMsgs) unsubMsgs();
   if (unsubTyping) unsubTyping();
-  unsubMsgs=unsubTyping=null;
-  setTyping(false);
+  if (unsubChatDoc) unsubChatDoc();
+  unsubMsgs=unsubTyping=unsubChatDoc=null;
+  setTyping(false); clearReply();
+  $('pinned').classList.remove('on');
   openChat=null; show('s-main');
 };
 
@@ -1103,7 +1303,16 @@ function watchMsgs(id){
         const el=log.querySelector('[data-id="'+d.id+'"]'); if(el) el.remove();
         seenMsg.delete(d.id); continue;
       }
-      if (ch.type==='modified' && seenMsg.has(d.id)){ paintReacts(d.id, d.data()); continue; }
+      if (ch.type==='modified' && seenMsg.has(d.id)){
+        const dd=d.data();
+        paintReacts(d.id, dd);
+        const bub = $('log').querySelector('[data-id="'+d.id+'"] .bub');
+        if (bub && dd.text && !dd.img){
+          bub.textContent=''; linkify(dd.text, bub);
+          if (dd.edited){ const f=document.createElement('span'); f.className='editflag'; f.textContent='edited'; bub.appendChild(f); }
+        }
+        continue;
+      }
       if (seenMsg.has(d.id)) continue;
       seenMsg.add(d.id);
       const data = d.data();
@@ -1116,6 +1325,12 @@ function watchMsgs(id){
       $('jump').textContent = pendingNew + ' new message' + (pendingNew>1?'s':'') + ' ↓';
       $('jump').classList.add('on');
     }
+    /* remember when my most recent message went out, for the Seen line */
+    let lastMine = 0;
+    $('log').querySelectorAll('.mline.mine').forEach(()=>{});
+    for (const d of snap.docs){ const dd=d.data(); if (dd.uid===me.uid) lastMine = Math.max(lastMine, msOf(dd.at)); }
+    if (openChat) openChat.__lastMineAt = lastMine || Date.now();
+    paintSeen();
     if (atBottom) log.scrollTop = log.scrollHeight;
     if (added){ if (document.hidden) blip(); markRead(id); }
   }, e => { console.error(e); toast(errText(e)); });
@@ -1145,6 +1360,7 @@ function watchTyping(id){
 
 async function setTyping(on){
   if (!openChat) return;
+  if (on && !getSet('typing')) return;
   const ref = doc(db,'chats',openChat.id,'typing',me.uid);
   try { on ? await setDoc(ref,{ at: serverTimestamp() }) : await deleteDoc(ref); } catch(e){}
 }
@@ -1207,6 +1423,13 @@ async function mkMsg(id, m){
   line.className='mline'+(mine?' mine':'')+(first?' first':'');
   line.appendChild(mkAv(28, u.name||u.username, u.photo));
   const bub=document.createElement('div'); bub.className='bub';
+  if (m.quote){
+    const q=document.createElement('div'); q.className='quoted';
+    const qw=document.createElement('span'); qw.className='qw'; qw.textContent=m.quote.who||'';
+    q.appendChild(qw);
+    q.appendChild(document.createTextNode(m.quote.text||''));
+    bub.appendChild(q);
+  }
   if (m.img){
     bub.classList.add('photo');
     const img=document.createElement('img'); img.src=m.img; img.alt='Photo'; img.loading='lazy';
@@ -1214,15 +1437,29 @@ async function mkMsg(id, m){
     bub.appendChild(img);
   } else {
     linkify(m.text || '', bub);
+    if (m.edited){ const f=document.createElement('span'); f.className='editflag'; f.textContent='edited'; bub.appendChild(f); }
   }
   line.appendChild(bub);
 
-  let press;
+  let press, sx=0, sy=0;
   const openMenu = e => { e.preventDefault(); msgMenu(id, m); };
   bub.addEventListener('contextmenu', openMenu);
-  bub.addEventListener('pointerdown', () => { press = setTimeout(() => msgMenu(id, m), 480); });
-  ['pointerup','pointerleave','pointercancel','pointermove'].forEach(ev =>
-    bub.addEventListener(ev, () => clearTimeout(press)));
+  bub.addEventListener('pointerdown', e => {
+    sx=e.clientX; sy=e.clientY;
+    press = setTimeout(() => msgMenu(id, m), 480);
+  });
+  bub.addEventListener('pointermove', e => {
+    if (Math.abs(e.clientX-sx) > 8 || Math.abs(e.clientY-sy) > 8) clearTimeout(press);
+  });
+  let lastTap = 0;
+  bub.addEventListener('pointerup', e => {
+    clearTimeout(press);
+    if (e.clientX - sx > 55 && Math.abs(e.clientY-sy) < 40){ setReplyTo(id, m); return; }
+    const now = Date.now();
+    if (now - lastTap < 300){ react(id, '❤️'); flyEmoji('❤️', e.clientX, e.clientY); }
+    lastTap = now;
+  });
+  ['pointerleave','pointercancel'].forEach(ev => bub.addEventListener(ev, () => clearTimeout(press)));
 
   wrap.appendChild(line);
 
@@ -1233,6 +1470,8 @@ async function mkMsg(id, m){
   const rc=document.createElement('div'); rc.className='reacts'; rc.dataset.react=id;
   wrap.appendChild(rc);
   drawReacts(rc, m.reactions);
+
+  if (mine){ const sn=document.createElement('div'); sn.className='seen'; sn.dataset.seen=id; wrap.appendChild(sn); }
   return wrap;
 }
 
@@ -1260,14 +1499,22 @@ let menuFor = null;
   const row=$('emojirow');
   EMOJI.forEach(e=>{
     const b=document.createElement('button'); b.textContent=e;
-    b.onclick = () => { if (menuFor) react(menuFor.id, e); $('msgsheet').classList.remove('on'); };
+    b.onclick = ev => {
+      if (menuFor) react(menuFor.id, e);
+      flyEmoji(e, ev.clientX, ev.clientY);
+      $('msgsheet').classList.remove('on');
+    };
     row.appendChild(b);
   });
 })();
 function msgMenu(id, m){
   menuFor = { id, m };
+  const at = msOf(m.at);
+  $('mm-time').textContent = at ? new Date(at).toLocaleString([], {weekday:'short', hour:'numeric', minute:'2-digit'}) : '';
   $('mm-copy').style.display = m.text ? 'flex' : 'none';
-  $('mm-del').style.display = m.uid === me.uid ? 'flex' : 'none';
+  $('mm-edit').style.display = (m.uid===me.uid && m.text) ? 'flex' : 'none';
+  $('mm-del').style.display  = m.uid === me.uid ? 'flex' : 'none';
+  $('mm-pin').style.display  = (openChat && openChat.type==='group') ? 'flex' : 'none';
   $('msgsheet').classList.add('on');
 }
 $('mm-close').onclick = () => $('msgsheet').classList.remove('on');
@@ -1278,6 +1525,31 @@ $('mm-del').onclick = async () => {
   if (!menuFor || !openChat) return;
   try { await deleteDoc(doc(db,'chats',openChat.id,'messages',menuFor.id)); toast('Deleted'); }
   catch(e){ console.error(e); toast(errText(e)); }
+};
+$('mm-reply').onclick = () => { if (menuFor) setReplyTo(menuFor.id, menuFor.m); $('msgsheet').classList.remove('on'); };
+$('mm-edit').onclick = async () => {
+  $('msgsheet').classList.remove('on');
+  if (!menuFor || !openChat) return;
+  const next = prompt('Edit message', menuFor.m.text || '');
+  if (next === null) return;
+  const clean = next.trim().slice(0,2000);
+  if (!clean){ toast('Message can\'t be empty'); return; }
+  try {
+    await updateDoc(doc(db,'chats',openChat.id,'messages',menuFor.id), { text: clean, edited: true });
+    const el = $('log').querySelector('[data-id="'+menuFor.id+'"] .bub');
+    if (el){ el.textContent=''; linkify(clean, el);
+      const f=document.createElement('span'); f.className='editflag'; f.textContent='edited'; el.appendChild(f); }
+    toast('Edited');
+  } catch(e){ console.error(e); toast(errText(e)); }
+};
+$('mm-pin').onclick = async () => {
+  $('msgsheet').classList.remove('on');
+  if (!menuFor || !openChat) return;
+  const label = menuFor.m.img ? '\uD83D\uDCF7 Photo' : (menuFor.m.text||'').slice(0,100);
+  try {
+    await updateDoc(doc(db,'chats',openChat.id), { pinned: { text: label, by: me.uid } });
+    toast('Pinned');
+  } catch(e){ console.error(e); toast(errText(e)); }
 };
 
 async function react(msgId, emo){
@@ -1298,19 +1570,27 @@ $('lightbox').onclick = () => $('lightbox').classList.remove('on');
 
 $('c-text').addEventListener('input', ()=>{
   $('c-send').disabled = !$('c-text').value.trim();
+  const len = $('c-text').value.length;
+  const cc = $('charcount');
+  if (len > 1600){ cc.classList.add('on'); cc.classList.toggle('warn', len>1900); cc.textContent = (2000-len); }
+  else cc.classList.remove('on');
   const now = Date.now();
   if ($('c-text').value.trim() && now - lastTypingWrite > 4000){ lastTypingWrite = now; setTyping(true); }
   clearTimeout(typingTimer);
   typingTimer = setTimeout(()=>{ lastTypingWrite = 0; setTyping(false); }, 5000);
 });
-$('c-text').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); sendMsg(); } });
+$('c-text').addEventListener('keydown', e=>{
+  if (e.key==='Enter' && !e.shiftKey && getSet('enter')){ e.preventDefault(); sendMsg(); }
+});
 $('c-send').onclick = sendMsg;
 
 async function pushMessage(payload, preview){
   if (!openChat) return;
   const chatId = openChat.id;
+  if (replyTo) payload = Object.assign({ quote: { who: replyTo.who, text: replyTo.text } }, payload);
   await addDoc(collection(db,'chats',chatId,'messages'),
     Object.assign({ uid: me.uid, at: serverTimestamp() }, payload));
+  clearReply();
   await updateDoc(doc(db,'chats',chatId), {
     lastMessage: (profile.name ? profile.name.split(' ')[0]+': ' : '') + preview,
     lastAt: serverTimestamp(),
@@ -1324,6 +1604,7 @@ async function sendMsg(){
   if (!text || !openChat) return;
   $('c-text').value=''; $('c-send').disabled=true;
   clearTimeout(typingTimer); lastTypingWrite = 0; setTyping(false);
+  $('charcount').classList.remove('on');
 
   /* echo it locally so the bubble appears the instant you hit enter */
   const cid = 'c'+Date.now()+Math.random().toString(36).slice(2,7);
@@ -1375,52 +1656,46 @@ $('s-chat').addEventListener('drop', e => {
 });
 
 /* ================= CAMERA ================= */
-let camStream=null, facing='environment', backTo='s-chat';
+let camStream=null, facing='environment';
 
 $('c-snap').onclick = () => openCamera();
-$('cam-close').onclick = () => { stopCam(); show(backTo); };
+$('cam-close').onclick = () => { stopCam(); show('s-chat'); };
 $('cam-flip').onclick = () => { facing = facing==='environment' ? 'user' : 'environment'; startCam(); };
 $('cam-pick').onclick = () => $('cam-file').click();
 
-async function openCamera(){
-  backTo = 's-chat';
-  show('s-cam');
-  await startCam();
-}
+async function openCamera(){ show('s-cam'); await startCam(); }
 async function startCam(){
   stopCam();
   try {
-    camStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode: facing }, audio:false });
-    $('cam').srcObject = camStream;
-  } catch(e){
-    console.error(e);
-    toast('No camera available — pick a photo instead');
-    $('cam-file').click();
-  }
+    camStream = await navigator.mediaDevices.getUserMedia({
+      video:{ facingMode: facing, width:{ideal:1440}, height:{ideal:1440} }, audio:false
+    });
+    const v=$('cam'); v.srcObject=camStream;
+    v.style.transform = facing==='user' ? 'scaleX(-1)' : 'none';
+  } catch(e){ console.error(e); toast('No camera — pick from your gallery instead'); $('cam-file').click(); }
 }
-function stopCam(){
-  if (camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
-  $('cam').srcObject = null;
-}
-$('cam-shot').onclick = () => {
+function stopCam(){ if (camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; } $('cam').srcObject=null; }
+
+const shutter=$('cam-shot');
+shutter.onclick = takePhoto;
+function takePhoto(){
   const v=$('cam');
-  if (!v.videoWidth){ toast('Camera is still warming up'); return; }
+  if (!v.videoWidth){ toast('Camera still warming up'); return; }
   const c=document.createElement('canvas');
-  const scale = Math.min(1, 1080 / Math.max(v.videoWidth, v.videoHeight));
-  c.width = Math.round(v.videoWidth*scale); c.height = Math.round(v.videoHeight*scale);
+  const scale=Math.min(1, 1440/Math.max(v.videoWidth,v.videoHeight));
+  c.width=Math.round(v.videoWidth*scale); c.height=Math.round(v.videoHeight*scale);
   const ctx=c.getContext('2d');
   if (facing==='user'){ ctx.translate(c.width,0); ctx.scale(-1,1); }
   ctx.drawImage(v,0,0,c.width,c.height);
   stopCam();
-  openEditor(c.toDataURL('image/jpeg',0.85));
-};
+  openEditor(c.toDataURL('image/jpeg',0.88));
+}
 $('cam-file').addEventListener('change', e => {
-  const f = e.target.files && e.target.files[0];
-  e.target.value='';
+  const f=e.target.files && e.target.files[0]; e.target.value='';
   if (!f) return;
-  const fr=new FileReader();
-  fr.onload = () => { stopCam(); openEditor(fr.result); };
-  fr.readAsDataURL(f);
+  if (!/^image\//.test(f.type)){ toast('Pick an image'); return; }
+  stopCam();
+  const fr=new FileReader(); fr.onload=()=>openEditor(fr.result); fr.readAsDataURL(f);
 });
 
 /* ================= PHOTO EDITOR ================= */
@@ -1559,7 +1834,10 @@ function watchReqs(){
 
 function friendRow(u, actions){
   const r=document.createElement('div'); r.className='rowitem'; r.style.padding='10px 0';
-  r.appendChild(mkAv(42, u.name||u.username, u.photo));
+  const w=document.createElement('div'); w.className='av-wrap';
+  w.appendChild(mkAv(42, u.name||u.username, u.photo));
+  if (isOnline(u)){ const o=document.createElement('span'); o.className='online'; w.appendChild(o); }
+  r.appendChild(w);
   const mid=document.createElement('div'); mid.className='mid';
   const nm=document.createElement('div'); nm.className='nm'; nm.textContent=u.name||'Unknown';
   const ds=document.createElement('div'); ds.className='ds'; ds.textContent='@'+u.username;
@@ -1867,12 +2145,107 @@ async function paintStaff(){
   box.appendChild(foot);
 }
 
+/* ---------- little reaction burst ---------- */
+function flyEmoji(emo, x, y){
+  const el = document.createElement('div');
+  el.className = 'reactfly'; el.textContent = emo;
+  el.style.left = (x-13)+'px'; el.style.top = (y-13)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 850);
+}
+
+/* ================= SETTINGS ================= */
+const SET = {
+  enter:   { key:'oc.set.enter',    def:true  },
+  sound:   { key:'oc.sound',        def:true  },
+  typing:  { key:'oc.set.typing',   def:true  },
+  receipts:{ key:'oc.set.receipts', def:true  },
+  bigtext: { key:'oc.set.bigtext',  def:false }
+};
+function getSet(name){
+  const v = localStorage.getItem(SET[name].key);
+  return v === null ? SET[name].def : v === '1';
+}
+function setSet(name, on){ localStorage.setItem(SET[name].key, on ? '1' : '0'); }
+
+function applyBigText(){ document.documentElement.style.setProperty('--bubfs', getSet('bigtext') ? '17px' : '15px'); }
+applyBigText();
+
+$('me-settings').onclick = () => {
+  ['enter','sound','typing','receipts','bigtext'].forEach(n =>
+    $('set-'+n).classList.toggle('on', getSet(n)));
+  $('setsheet').classList.add('on');
+};
+$('set-close').onclick = () => $('setsheet').classList.remove('on');
+$('setsheet').addEventListener('click', e => { if (e.target===$('setsheet')) $('setsheet').classList.remove('on'); });
+['enter','sound','typing','receipts','bigtext'].forEach(n => {
+  $('set-'+n).onclick = () => {
+    const on = !getSet(n); setSet(n, on); $('set-'+n).classList.toggle('on', on);
+    if (n==='bigtext') applyBigText();
+    if (n==='sound' && on) blip();
+  };
+});
+/* keep the old Mask-tab sound toggle in sync with this one */
+soundOnRef = () => getSet('sound');
+
+/* ================= REPLY ================= */
+let replyTo = null;
+function setReplyTo(id, m){
+  const who = m.uid===me.uid ? 'You' : ((userCache.get(m.uid)||{}).name || 'Them');
+  const preview = m.img ? '\uD83D\uDCF7 Photo' : (m.text||'');
+  replyTo = { id, who, text: preview.slice(0,120) };
+  $('reply-who').textContent = 'Replying to ' + who;
+  $('reply-tx').textContent = preview;
+  $('replybar').classList.add('on');
+  $('c-text').focus();
+}
+function clearReply(){ replyTo=null; $('replybar').classList.remove('on'); }
+$('reply-x').onclick = clearReply;
+
+/* ================= PINNED ================= */
+function paintPinned(){
+  const p = openChat && openChat.pinned;
+  const bar = $('pinned');
+  if (!p || !p.text){ bar.classList.remove('on'); return; }
+  $('pinned-tx').textContent = p.text;
+  bar.classList.add('on');
+}
+$('pinned').onclick = async () => {
+  if (!openChat) return;
+  if (confirm('Unpin this message?')){
+    try { await updateDoc(doc(db,'chats',openChat.id), { pinned: null }); toast('Unpinned'); }
+    catch(e){ console.error(e); toast(errText(e)); }
+  }
+};
+
+/* ================= READ RECEIPTS ================= */
+function paintSeen(){
+  if (!openChat || !getSet('receipts')) return;
+  const reads = openChat.reads || {};
+  const others = (openChat.memberIds||[]).filter(u => u !== me.uid);
+  /* newest of my own messages that everyone has read past */
+  const mineEls = [...$('log').querySelectorAll('[data-seen]')];
+  mineEls.forEach(el => { el.textContent=''; });
+  if (!mineEls.length || !others.length) return;
+
+  const lastEl = mineEls[mineEls.length-1];
+  const seenBy = others.filter(u => {
+    const t = reads[u]; return t && openChat.__lastMineAt && msOf(t) >= openChat.__lastMineAt;
+  });
+  if (!seenBy.length) return;
+
+  if (openChat.type==='dm'){ lastEl.textContent = 'Seen'; }
+  else {
+    lastEl.textContent = 'Seen by ' + seenBy.length;
+  }
+}
+
 /* ================= PANIC EXIT, SOUND, TITLE BADGE ================= */
 let panicHost = localStorage.getItem('oc.panic') || 'classroom.google.com';
-let soundOn = localStorage.getItem('oc.sound') !== '0';
+let soundOnRef = () => localStorage.getItem('oc.sound') !== '0';
 
 $('mk-panic').value = panicHost;
-$('mk-sound').classList.toggle('on', soundOn);
+$('mk-sound').classList.toggle('on', soundOnRef());
 
 $('mk-panicsave').onclick = () => {
   const hostv = hostOf($('mk-panic').value);
@@ -1886,7 +2259,7 @@ $('mk-panicgo').onclick = () => panic();
 $('mk-sound').onclick = () => {
   soundOn = !soundOn;
   localStorage.setItem('oc.sound', soundOn ? '1' : '0');
-  $('mk-sound').classList.toggle('on', soundOn);
+  $('mk-sound').classList.toggle('on', soundOnRef());
   if (soundOn) blip();
 };
 
@@ -1912,7 +2285,7 @@ document.addEventListener('keydown', e => {
 
 let audioCtx = null;
 function blip(){
-  if (!soundOn) return;
+  if (!soundOnRef()) return;
   try {
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     const o = audioCtx.createOscillator(), g = audioCtx.createGain();
