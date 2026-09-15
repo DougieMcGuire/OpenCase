@@ -331,12 +331,9 @@ auth.onAuthStateChanged((u) => {
   if (u) {
     state.user = u;
     $("who").textContent = "signed in: " + (u.email || u.uid);
-    $("auth").style.display = "none";
-    $("app").classList.add("on");
-    bootstrap();
+    checkModeratorAccess();
   } else {
     state.user = null;
-    detachLive();
     $("app").classList.remove("on");
     $("auth").style.display = "flex";
   }
@@ -349,6 +346,39 @@ function autoLoad() {
 
 // ===== bootstrap =====
 let bootstrapped = false;
+async function checkModeratorAccess() {
+  const userEmail = state.user?.email;
+  console.log("[MOD CHECK] User email:", userEmail);
+  if (!userEmail) {
+    toast("No email found for this account", "err");
+    return;
+  }
+  const modDocRef = db.collection("moderators").doc(userEmail);
+  try {
+    console.log("[MOD CHECK] Checking moderators/" + userEmail);
+    const modDoc = await modDocRef.get();
+    console.log("[MOD CHECK] Doc exists:", modDoc.exists);
+    if (!modDoc.exists) {
+      // Not a moderator
+      $("app").classList.remove("on");
+      $("auth").style.display = "flex";
+      $("auth-error").textContent = `Access denied: ${userEmail} is not in the moderators list. Contact an admin.`;
+      return;
+    }
+    // Moderator access granted
+    console.log("[MOD CHECK] Access granted!");
+    $("auth").style.display = "none";
+    $("app").classList.add("on");
+    bootstrap();
+  } catch (e) {
+    console.log("[MOD CHECK] Error:", e.code, e.message);
+    // Likely permission denied on reading moderators doc
+    $("app").classList.remove("on");
+    $("auth").style.display = "flex";
+    $("auth-error").textContent = "Error checking access: " + permHint(e) + "\n\nMake sure you've published the new Firestore rules and dtm2210@gmail.com is listed in the moderators collection.";
+  }
+}
+
 async function bootstrap() {
   if (bootstrapped) return;
   bootstrapped = true;
