@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenCase · Moderation Console</title>
+<style>
+  :root {
+    --bg: #0b0e14;
+    --bg2: #11151f;
+    --bg3: #171c28;
+    --line: #232a3a;
+    --txt: #e6e9f0;
+    --dim: #8b93a7;
+    --accent: #5b8cff;
+    --accent2: #7ee0b0;
+    --danger: #ff6b7a;
+    --warn: #ffc86b;
+    --chip: #1d2434;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    background: var(--bg); color: var(--txt);
+    font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  button {
+    background: var(--bg3); color: var(--txt); border: 1px solid var(--line);
+    border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: 13px;
+  }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.ghost { background: transparent; }
+  input, select {
+    background: var(--bg3); color: var(--txt); border: 1px solid var(--line);
+    border-radius: 8px; padding: 7px 10px; font-size: 13px; outline: none;
+  }
+  input:focus, select:focus { border-color: var(--accent); }
+  .muted { color: var(--dim); }
+  .mono { font-family: var(--mono); font-size: 12px; }
+
+  /* ---------- auth ---------- */
+  #auth {
+    height: 100%; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(1200px 600px at 50% -10%, #1a2440 0%, var(--bg) 60%);
+  }
+  .auth-card {
+    width: 400px; max-width: calc(100vw - 32px);
+    background: var(--bg2); border: 1px solid var(--line); border-radius: 16px;
+    padding: 32px; text-align: center;
+  }
+  .auth-card h1 { margin: 0 0 6px; font-size: 22px; }
+  .auth-card p.sub { margin: 0 0 22px; color: var(--dim); font-size: 13px; }
+  .auth-card input { width: 100%; margin: 8px 0; text-align: left; }
+  .auth-card button { width: 100%; margin-top: 8px; padding: 10px; }
+  .divider { color: var(--dim); font-size: 12px; margin: 16px 0 6px; }
+  #auth-error { color: var(--danger); font-size: 12px; min-height: 16px; margin-top: 12px; white-space: pre-wrap; text-align: left; }
+  #sdk-status { margin-top: 18px; font-size: 11px; color: var(--dim); }
+
+  /* ---------- app ---------- */
+  #app { display: none; height: 100%; flex-direction: column; }
+  #app.on { display: flex; }
+  header.top {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--bg2);
+  }
+  .brand { font-weight: 700; letter-spacing: .2px; }
+  .brand span.tag { font-weight: 400; color: var(--dim); font-size: 12px; margin-left: 8px; }
+  #who { color: var(--accent2); font-size: 12px; }
+  .tabs { display: flex; gap: 6px; margin-left: auto; }
+  .tabs button.active { border-color: var(--accent); color: #fff; background: #1b2438; }
+  .view { display: none; flex: 1; min-height: 0; }
+  .view.on { display: flex; }
+
+  /* chats view */
+  aside#sidebar {
+    width: 290px; min-width: 290px; border-right: 1px solid var(--line);
+    display: flex; flex-direction: column; background: var(--bg2);
+  }
+  #sidebar .side-top { padding: 10px; border-bottom: 1px solid var(--line); }
+  #sidebar .side-top input { width: 100%; }
+  #chatlist { overflow-y: auto; flex: 1; }
+  .chat-item { padding: 10px 12px; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .chat-item:hover { background: var(--bg3); }
+  .chat-item.active { background: #1b2438; border-left: 3px solid var(--accent); }
+  .chat-item .cn { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chat-item .cm { color: var(--dim); font-size: 11px; margin-top: 3px; }
+
+  #chatpane { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  #chat-header { border-bottom: 1px solid var(--line); padding: 10px 14px; background: var(--bg2); }
+  #chat-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  #chat-title { font-size: 15px; font-weight: 700; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--chip); border: 1px solid var(--line); border-radius: 20px;
+    padding: 2px 9px; font-size: 11px; color: var(--dim);
+  }
+  #chat-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  #chat-controls input[type="text"] { width: 220px; }
+  label.small { font-size: 12px; color: var(--dim); display: inline-flex; gap: 5px; align-items: center; }
+  #advanced { display: none; margin-top: 10px; padding: 10px; border: 1px dashed var(--line); border-radius: 8px; }
+  #advanced.on { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+  #messages { flex: 1; overflow-y: auto; padding: 10px 14px; }
+  .msg { border: 1px solid var(--line); border-radius: 10px; background: var(--bg2); padding: 9px 12px; margin-bottom: 8px; }
+  .msg .meta { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; font-size: 11.5px; }
+  .msg .time { color: var(--dim); font-family: var(--mono); }
+  .msg .sender { color: var(--accent); font-weight: 700; cursor: default; }
+  .msg .chatlink { color: var(--accent2); cursor: pointer; }
+  .msg .rawbadge { margin-left: auto; color: var(--warn); cursor: pointer; font-size: 10.5px; border: 1px solid var(--line); border-radius: 6px; padding: 1px 7px; }
+  .msg .body { margin-top: 4px; white-space: pre-wrap; word-break: break-word; }
+  .msg .body img, .msg .body video { max-width: 320px; border-radius: 8px; margin-top: 6px; display: block; }
+  .msg .reactions { margin-top: 5px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .msg .reactions .chip { color: var(--txt); }
+  .msg pre.raw {
+    display: none; margin: 8px 0 0; background: #0d1117; border: 1px solid var(--line);
+    border-radius: 8px; padding: 8px; font-family: var(--mono); font-size: 11px;
+    white-space: pre-wrap; word-break: break-word; color: #9fb0c8;
+  }
+  .msg pre.raw.on { display: block; }
+
+  #load-more-wrap { padding: 8px 14px 16px; text-align: center; display: none; }
+  #load-more-wrap.on { display: block; }
+  .empty { color: var(--dim); padding: 30px; text-align: center; }
+  .loading { color: var(--dim); padding: 24px; text-align: center; }
+
+  /* everything / users views */
+  .panel { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .panel .p-head { border-bottom: 1px solid var(--line); padding: 12px 16px; background: var(--bg2); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .panel .p-head h2 { margin: 0; font-size: 15px; margin-right: 6px; }
+  .panel .p-body { flex: 1; overflow-y: auto; padding: 12px 16px; }
+
+  table.users { border-collapse: collapse; width: 100%; }
+  table.users th, table.users td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); font-size: 12.5px; vertical-align: top; }
+  table.users th { color: var(--dim); font-weight: 600; }
+  table.users td.uid, table.users td.un { font-family: var(--mono); font-size: 11.5px; color: #9fb0c8; }
+
+  #toast {
+    position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+    background: #20283a; border: 1px solid var(--line); color: var(--txt);
+    border-radius: 10px; padding: 10px 16px; font-size: 13px; max-width: 70vw;
+    display: none; z-index: 99; box-shadow: 0 8px 30px rgba(0,0,0,.5);
+  }
+  #toast.on { display: block; }
+  #toast.err { border-color: var(--danger); color: var(--danger); }
+  #toast.ok { border-color: var(--accent2); }
+  .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--dim); border-top-color: var(--accent); border-radius: 50%; animation: sp .8s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes sp { to { transform: rotate(360deg); } }
+  .note { font-size: 11.5px; color: var(--dim); }
+</style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+
+<!-- ============ AUTH SCREEN ============ -->
+<div id="auth">
+  <div class="auth-card">
+    <h1>OpenCase · Moderation</h1>
+    <p class="sub">Read-only console for your app's chats &amp; messages.</p>
+    <button id="btn-google" class="primary">Continue with Google</button>
+    <div class="divider">— or with a moderator email/password —</div>
+    <input id="in-email" type="email" placeholder="email" autocomplete="username">
+    <input id="in-pass" type="password" placeholder="password" autocomplete="current-password">
+    <button id="btn-email">Sign in</button>
+    <div id="auth-error"></div>
+    <div id="sdk-status">loading Firebase SDK…</div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <header class="top">
+    <div class="brand">OpenCase<span class="tag">mod console</span></div>
+    <span id="who"></span>
+    <button id="btn-signout" class="ghost">Sign out</button>
+  </header>
+
+  <!-- MAIN VIEW -->
+  <div id="view-main" class="view on">
+    <div class="panel">
+      <div class="p-head">
+        <h2>All Messages Ever</h2>
+        <input id="all-filter" type="text" placeholder="Filter by sender / text / chat…">
+        <button id="btn-all-refresh" class="ghost">↻ reload</button>
+        <button id="btn-all-csv">Export all → CSV</button>
+        <button id="btn-all-json">Export all → JSON</button>
+        <span id="all-count" class="note"></span>
+      </div>
+      <div id="all-messages" class="p-body"><div class="loading"><span class="spin"></span>loading all messages…</div></div>
+      <div id="all-more-wrap" style="padding: 8px 16px 16px; text-align: center; display: none;"><button id="btn-all-more">Load more</button></div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+</div>
+
+<!-- Firebase compat SDK (classic scripts; works from any origin incl. file://) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script id="app-script">
+// ===== your config =====
+const firebaseConfig = {
+  apiKey: "AIzaSyBXofC_jQ-1Wr-vWWdLOIe7Bp9b4hz0E1g",
+  authDomain: "opencase-b01b4.firebaseapp.com",
+  projectId: "opencase-b01b4",
+  storageBucket: "opencase-b01b4.firebasestorage.app",
+  messagingSenderId: "1041704632178",
+  appId: "1:1041704632178:web:83bf1ffe6f69390bba67eb",
+  measurementId: "G-LMYRQX1XFE"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+window.__modReady = true;
+
+const $ = (id) => document.getElementById(id);
+
+// ===== state =====
+const state = {
+  user: null,
+  users: new Map(),        // uid -> users/ doc data
+  usernames: new Map(),    // uid -> username
+  chats: new Map(),        // chatId -> {id, data, members:Set}
+  chatOrder: [],
+  selected: null,
+  fields: { time: null, text: null },   // detected field names
+  msgs: [],                // docs for selected chat
+  lastDoc: null,
+  pageSize: 300,
+  sortDesc: true,
+  filter: "",
+  live: false,
+  unsub: null,
+  everything: { msgs: [], lastDoc: null, loaded: false, filter: "" },
+};
+
+// ===== tiny ui helpers =====
+let toastTimer = null;
+function toast(msg, kind = "") {
+  const t = $("toast");
+  t.textContent = msg;
+  t.className = "on " + kind;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => (t.className = ""), 5000);
+}
+function fmtTs(v) {
+  if (v == null) return null;
+  if (typeof v === "object" && typeof v.toDate === "function") return v.toDate();      // firestore Timestamp
+  if (typeof v === "object" && typeof v.seconds === "number") return new Date(v.seconds * 1000 + (v.nanoseconds || 0) / 1e6);
+  if (typeof v === "number") return new Date(v < 1e12 ? v * 1000 : v);
+  const d = new Date(v);
+  return isNaN(d) ? null : d;
+}
+function fmtDate(d) {
+  if (!d) return "—";
+  return d.toLocaleString(undefined, { year: "numeric", month: "short", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+function displayName(uid) {
+  if (!uid) return "(unknown)";
+  if (state.usernames.has(uid)) return state.usernames.get(uid);
+  const u = state.users.get(uid);
+  if (u) return u.username || u.displayName || u.name || u.email || uid.slice(0, 8) + "…";
+  return uid.slice(0, 8) + "…";
+}
+function chatTitle(chat) {
+  const d = chat.data || {};
+  if (d.name || d.title) return d.name || d.title;
+  const names = [...chat.members].map(displayName);
+  if (names.length === 0) return chat.id;
+  if (names.length <= 3) return names.join(", ");
+  return names.slice(0, 3).join(", ") + ` +${names.length - 3}`;
+}
+function extractMembers(data) {
+  if (!data) return new Set();
+  const raw = data.memberIds || data.members || data.memberUIDs || data.userIds || [];
+  const set = new Set();
+  for (const m of raw || []) {
+    if (typeof m === "string") set.add(m);
+    else if (m && typeof m === "object" && m.uid) set.add(m.uid);
+  }
+  return set;
+}
+function csvCell(v) {
+  if (v == null) return "";
+  const s = typeof v === "object" ? JSON.stringify(v) : String(v);
+  return '"' + s.replace(/"/g, '""').replace(/\r?\n/g, "\\n") + '"';
+}
+function download(name, content, type = "application/json") {
+  const blob = new Blob([content], { type });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+function permHint(e) {
+  const msg = (e && (e.message || e.code)) ? ((e.code || "") + " " + (e.message || "")) : String(e);
+  if (/unauthorized-domain/i.test(msg)) {
+    return "auth/unauthorized-domain — this page's origin isn't in your Firebase authorized domains.\n" +
+      "Fix: open it via http://localhost (localhost is pre-authorized), or deploy it to Firebase Hosting " +
+      "(opencase-b01b4.firebaseapp.com is pre-authorized), or add your domain in Firebase Console → Authentication → Settings → Authorized domains.";
+  }
+  if (/permission-denied|PERMISSION_DENIED/i.test(msg)) {
+    return "permission-denied — your Firestore rules must allow this signed-in account to read the data.";
+  }
+  return msg || String(e);
+}
+
+// ===== auth =====
+$("sdk-status").textContent = "Firebase SDK ready · project opencase-b01b4";
+$("btn-google").addEventListener("click", async () => {
+  $("auth-error").textContent = "";
+  try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+  catch (e) { $("auth-error").textContent = permHint(e); }
+});
+$("btn-email").addEventListener("click", async () => {
+  $("auth-error").textContent = "";
+  const email = $("in-email").value.trim();
+  const pass = $("in-pass").value;
+  if (!email || !pass) { $("auth-error").textContent = "Enter your email and password."; return; }
+  try { await auth.signInWithEmailAndPassword(email, pass); }
+  catch (e) { $("auth-error").textContent = permHint(e); }
+});
+$("in-pass").addEventListener("keydown", (e) => { if (e.key === "Enter") $("btn-email").click(); });
+$("btn-signout").addEventListener("click", () => { detachLive(); auth.signOut(); });
+
+auth.onAuthStateChanged((u) => {
+  if (u) {
+    state.user = u;
+    $("who").textContent = "signed in: " + (u.email || u.uid);
+    $("auth").style.display = "none";
+    $("app").classList.add("on");
+    bootstrap();
+  } else {
+    state.user = null;
+    detachLive();
+    $("app").classList.remove("on");
+    $("auth").style.display = "flex";
+  }
+});
+
+// ===== auto-start =====
+function autoLoad() {
+  if (!state.everything.loaded) loadEverything();
+}
+
+// ===== bootstrap =====
+let bootstrapped = false;
+async function bootstrap() {
+  if (bootstrapped) return;
+  bootstrapped = true;
+  try {
+    const [usersSnap, unSnap] = await Promise.all([
+      db.collection("users").get().catch(() => null),
+      db.collection("usernames").get().catch(() => null),
+    ]);
+    state.users.clear(); state.usernames.clear();
+    (usersSnap?.docs || []).forEach((d) => state.users.set(d.id, d.data() || {}));
+    (unSnap?.docs || []).forEach((d) => {
+      const uid = d.data()?.uid;
+      if (uid) state.usernames.set(uid, d.id);
+    });
+    autoLoad();
+  } catch (e) {
+    toast(permHint(e), "err");
+  }
+}
+
+const TIME_CANDIDATES = ["timestamp", "ts", "time", "sentAt", "sent_at", "createdAt", "created_at", "created", "date", "at", "t", "when"];
+const TEXT_CANDIDATES = ["text", "content", "message", "body", "msg", "messageText", "value"];
+async function detectFieldsGlobal() {
+  if (state.fields.time && state.fields.text) return;
+  try {
+    const sample = await db.collectionGroup("messages").limit(10).get();
+    const keys = new Set();
+    sample.docs.forEach((d) => Object.keys(d.data() || {}).forEach((k) => keys.add(k)));
+    const sampleData = sample.docs.map((d) => d.data() || {});
+    if (!state.fields.time) {
+      let timeField = TIME_CANDIDATES.find((c) => sampleData.some((d) => d[c] != null));
+      if (!timeField) {
+        for (const k of keys) {
+          const v = sampleData.map((d) => d[k]).find((x) => x != null);
+          if (fmtTs(v)) { timeField = k; break; }
+        }
+      }
+      state.fields.time = timeField || null;
+    }
+    if (!state.fields.text) {
+      let textField = TEXT_CANDIDATES.find((c) => sampleData.some((d) => typeof d[c] === "string"));
+      if (!textField) {
+        let bestLen = 0;
+        for (const k of keys) {
+          const v = sampleData.map((d) => d[k]).find((x) => typeof x === "string");
+          if (typeof v === "string" && v.length > bestLen) { bestLen = v.length; textField = k; }
+        }
+      }
+      state.fields.text = textField || "text";
+    }
+  } catch (e) {
+    // fallback
+  }
+}
+
+// ===== message rendering =====
+function msgTs(doc) { return fmtTs((doc.data() || {})[state.fields.time]); }
+function msgText(doc) { const d = doc.data() || {}; return d[state.fields.text] ?? d.text ?? d.content ?? d.message ?? ""; }
+function reactionsChips(d) {
+  const out = [];
+  const r = d.reactions;
+  if (r && typeof r === "object") {
+    if (Array.isArray(r)) {
+      r.forEach((x) => { out.push(typeof x === "object" ? JSON.stringify(x) : String(x)); });
+    } else {
+      for (const [k, v] of Object.entries(r)) out.push(`${k} ${Array.isArray(v) ? v.length : (v ?? "")}`);
+    }
+  }
+  return out;
+}
+
+// ===== everything (collection group) =====
+async function loadEverything(reset = true) {
+  const box = $("all-messages");
+  if (reset) { state.everything.msgs = []; state.everything.lastDoc = null; }
+  if (reset) box.innerHTML = '<div class="loading"><span class="spin"></span>fetching messages across all chats…</div>';
+  try {
+    await detectFieldsGlobal();
+    let q;
+    const base = db.collectionGroup("messages");
+    if (state.fields.time) q = base.orderBy(state.fields.time, "desc").limit(500);
+    else q = base.limit(500);
+    if (!reset && state.everything.lastDoc && state.fields.time) {
+      q = db.collectionGroup("messages")
+        .orderBy(state.fields.time, "desc").limit(500).startAfter(state.everything.lastDoc);
+    }
+    const snap = await q.get();
+    state.everything.msgs = reset ? snap.docs : state.everything.msgs.concat(snap.docs);
+    if (snap.docs.length) state.everything.lastDoc = snap.docs[snap.docs.length - 1];
+    state.everything.loaded = true;
+    $("all-more-wrap").style.display = state.fields.time && snap.docs.length >= 500 ? "block" : "none";
+    renderEverything();
+  } catch (e) {
+    box.innerHTML = "";
+    toast(permHint(e), "err");
+  }
+}
+$("btn-all-refresh").addEventListener("click", () => loadEverything(true));
+$("btn-all-more").addEventListener("click", () => loadEverything(false));
+$("all-filter").addEventListener("input", (e) => { state.everything.filter = e.target.value.trim().toLowerCase(); renderEverything(); });
+function renderEverything() {
+  const box = $("all-messages");
+  let list = state.everything.msgs.slice();
+  const f = state.everything.filter;
+  if (f) list = list.filter((doc) => {
+    const d = doc.data() || {};
+    const chatId = doc.ref.parent.parent?.id || "";
+    const hay = (displayName(d.uid) + " " + (msgText(doc) || "") + " " + chatId).toLowerCase();
+    return hay.includes(f);
+  });
+  $("all-count").textContent = `showing ${list.length} / ${state.everything.msgs.length} loaded`;
+  if (!list.length) { box.innerHTML = '<div class="empty">No messages found.</div>'; return; }
+  box.innerHTML = "";
+  const frag = document.createDocumentFragment();
+  for (const doc of list) {
+    const d = doc.data() || {};
+    const chatId = doc.ref.parent.parent?.id || "?";
+    const row = document.createElement("div");
+    row.className = "msg";
+    const meta = document.createElement("div"); meta.className = "meta";
+    const time = document.createElement("span"); time.className = "time"; time.textContent = fmtDate(msgTs(doc));
+    const sender = document.createElement("span"); sender.className = "sender"; sender.textContent = displayName(d.uid); sender.title = d.uid || "";
+    const chatEl = document.createElement("span"); chatEl.className = "chatlink"; chatEl.textContent = chatId; chatEl.title = chatId;
+    const raw = document.createElement("span"); raw.className = "rawbadge"; raw.textContent = "⤓ raw";
+    const pre = document.createElement("pre"); pre.className = "raw";
+    pre.textContent = JSON.stringify({ id: doc.id, ...d }, null, 2);
+    raw.addEventListener("click", () => pre.classList.toggle("on"));
+    meta.append(time, sender, chatEl, raw);
+    const body = document.createElement("div"); body.className = "body";
+    const text = msgText(doc);
+    body.textContent = typeof text === "string" ? text : JSON.stringify(text);
+    const rx = reactionsChips(d);
+    if (rx.length) {
+      const rc = document.createElement("div"); rc.className = "reactions";
+      rx.forEach((txt) => { const c = document.createElement("span"); c.className = "chip"; c.textContent = txt; rc.appendChild(c); });
+      row.appendChild(rc);
+    }
+    row.append(meta, body, pre);
+    frag.appendChild(row);
+  }
+  box.appendChild(frag);
+}
+
+
+
+// ===== exports =====
+function msgRowGlobal(doc, chatId) {
+  const d = doc.data() || {};
+  const ts = fmtTs(d[state.fields.time]);
+  return {
+    chatId,
+    messageId: doc.id,
+    sentAt: ts ? ts.toISOString() : null,
+    senderName: displayName(d.uid),
+    senderUid: d.uid || null,
+    text: typeof d[state.fields.text] === "string" ? d[state.fields.text] : JSON.stringify(d[state.fields.text] ?? ""),
+    reactions: d.reactions || null,
+    rawData: d,
+  };
+}
+$("btn-all-json").addEventListener("click", async () => {
+  try {
+    toast("Exporting all messages…");
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      messageCount: state.everything.msgs.length,
+      messages: state.everything.msgs.map((d) => {
+        const chatId = d.ref.parent.parent?.id || "?";
+        return { chatId, id: d.id, ...d.data() };
+      }),
+    };
+    download("all-messages.json", JSON.stringify(payload, null, 2));
+    toast(`Exported ${state.everything.msgs.length} messages.`, "ok");
+  } catch (e) { toast(permHint(e), "err"); }
+});
+$("btn-all-csv").addEventListener("click", async () => {
+  try {
+    toast("Exporting all messages to CSV…");
+    const head = ["chatId", "messageId", "sentAt", "senderName", "senderUid", "text", "reactions", "rawData"];
+    const lines = [head.map(csvCell).join(",")];
+    for (const doc of state.everything.msgs) {
+      const chatId = doc.ref.parent.parent?.id || "?";
+      const r = msgRowGlobal(doc, chatId);
+      lines.push([r.chatId, r.messageId, r.sentAt, r.senderName, r.senderUid, r.text,
+        r.reactions ? JSON.stringify(r.reactions) : "", JSON.stringify(r.rawData)].map(csvCell).join(","));
+    }
+    download("all-messages.csv", "\uFEFF" + lines.join("\r\n"), "text/csv");
+    toast(`Exported ${state.everything.msgs.length} messages.`, "ok");
+  } catch (e) { toast(permHint(e), "err"); }
+});
+</script>
+</body>
+</html>
