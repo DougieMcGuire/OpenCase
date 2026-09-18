@@ -7,18 +7,13 @@
 <meta name="theme-color" content="#FF4B3E" />
 <title>OpenCase</title>
 <script>
-/* app  - inside the cloak frame, or explicitly unlocked
-   bmk  - first ever visit, ask for a bookmark
-   open - bookmarked already, offer the cloaked window */
 window.OC = (function () {
   var inFrame; try { inFrame = window.self !== window.top; } catch (e) { inFrame = true; }
   var raw = /(^|[#&])raw=1/.test(location.hash);
   var flag = null; try { flag = localStorage.getItem('Bookmarked'); } catch (e) {}
-  return {
-    real: location.origin + location.pathname,
-    wordmark: location.origin + '/wordmark.png',
-    mode: (inFrame || raw) ? 'app' : (flag === '1' ? 'open' : 'bmk')
-  };
+  return { real: location.origin + location.pathname,
+           wordmark: location.origin + '/wordmark.png',
+           mode: (inFrame || raw) ? 'app' : (flag === '1' ? 'open' : 'bmk') };
 })();
 if (window.OC.mode !== 'app') document.documentElement.className = 'oc-lock';
 </script>
@@ -412,6 +407,20 @@ button.rowitem:hover{background:var(--soft)}
 .settingrow .chev{margin-left:auto;color:var(--faint)}
 .mm-time{text-align:center;font-size:12.5px;color:var(--faint);padding:2px 0 12px;font-weight:500}
 
+/* ---------- browse tab ---------- */
+#tab-browse{display:none}
+.browsebar{display:flex;gap:9px;padding:12px 14px;border-bottom:1px solid var(--line);flex:none}
+.browsebar .inp{margin:0;border-radius:99px;padding:11px 16px;font-size:14.5px;background:var(--soft);border-color:transparent}
+.circ.br-go{background:var(--brand);color:#fff;box-shadow:0 3px 0 var(--brand-d)}
+.circ.br-go:active{transform:translateY(3px);box-shadow:none}
+.browsestage{flex:1;min-height:0;position:relative;background:var(--soft)}
+#br-frame{width:100%;height:100%;border:0;display:none;background:#fff}
+.browseempty,.browseblock{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;padding:0 34px;color:var(--dim);
+  font-size:14.5px;line-height:1.55}
+.browseblock{display:none}
+.browseempty .big,.browseblock .big{font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:var(--ink);margin-bottom:6px}
+
 .oc-lock #app > .screen, .oc-lock #app > #right{display:none!important}
 .veil{position:fixed;inset:0;z-index:70;background:var(--paper);display:none;
   flex-direction:column;justify-content:center;align-items:center;padding:26px;overflow-y:auto}
@@ -614,6 +623,29 @@ button.rowitem:hover{background:var(--soft)}
       <button class="btn line" id="me-out" style="margin-top:24px;color:var(--brand-d)">Sign out</button>
     </div></div>
 
+    <div id="tab-browse" style="display:none;flex:1;min-height:0;flex-direction:column">
+      <div class="browsebar">
+        <input class="inp" id="br-url" placeholder="Type a site, e.g. example.com" spellcheck="false" autocapitalize="off" autocomplete="off" />
+        <button class="circ br-go" id="br-go" aria-label="Go">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+      <div class="browsestage" id="br-stage">
+        <div class="browseempty" id="br-empty">
+          <span class="emoji">🌐</span>
+          <div class="big">Browse masked</div>
+          Type any site above. It opens right here, and your tab keeps whatever disguise you set.
+        </div>
+        <div class="browseblock" id="br-block">
+          <span class="emoji">🚫</span>
+          <div class="big">This site won't load here</div>
+          <span id="br-blockhost">It</span> refuses to be embedded — that's the site's own rule, not something OpenCase can override.
+          <button class="btn" id="br-open" style="margin-top:16px;max-width:280px">Open it in a new tab instead</button>
+        </div>
+        <iframe id="br-frame" title="Browser"></iframe>
+      </div>
+    </div>
+
     <div class="scroll" id="tab-staff" style="display:none"><div class="pad">
       <h1 class="h1">The team</h1>
       <div id="stafflist"></div>
@@ -680,6 +712,10 @@ button.rowitem:hover{background:var(--soft)}
       <button data-tab="me">
         <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         Me
+      </button>
+      <button data-tab="browse">
+        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
+        Browse
       </button>
       <button data-tab="staff">
         <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14"/><path d="M9 9h6M9 13h6M2 20h20"/></svg>
@@ -1199,10 +1235,11 @@ $('nav').addEventListener('click', e => {
   if (b) setTab(b.dataset.tab);
 });
 function setTab(t){
-  ['chats','friends','mask','me','staff'].forEach(k => $('tab-'+k).style.display = k===t?'block':'none');
+  ['chats','friends','mask','browse','me','staff'].forEach(k =>
+    $('tab-'+k).style.display = k===t ? (k==='browse'?'flex':'block') : 'none');
   const sc = $('tab-'+t); if (sc && sc.scrollTo) sc.scrollTo(0,0);
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on', b.dataset.tab===t));
-  $('m-title').textContent = {chats:'Chats',friends:'Friends',mask:'Mask',me:'Me',staff:'Staff'}[t];
+  $('m-title').textContent = {chats:'Chats',friends:'Friends',mask:'Mask',browse:'Browse',me:'Me',staff:'Staff'}[t];
   if (t==='mask'){ paintMaskPreview(); loadPresets(); }
   $('m-action').style.display = t==='chats'?'grid':'none';
   if (t==='staff') paintStaff();
@@ -2599,34 +2636,92 @@ async function loadPresets(){
 
 paintMaskPreview();
 
+/* ================= MASKED BROWSE =================
+   An iframe you can type any site into. Many sites (Google, most logins) send
+   X-Frame-Options / frame-ancestors headers that make the browser refuse to
+   embed them — nothing a page can do about that. When that happens we detect it
+   and offer to open the site in a real tab, where the tab-mask disguise still
+   applies. No proxy: your traffic never routes through anyone. */
+let brLoaded = '';
+function brNormalize(raw){
+  let s = String(raw||'').trim();
+  if (!s) return '';
+  if (!/^https?:\/\//i.test(s)){
+    /* looks like a search rather than a domain? send it to a search engine */
+    if (!/^[a-z0-9.-]+\.[a-z]{2,}(\/|$|:)/i.test(s)) return 'https://duckduckgo.com/?q=' + encodeURIComponent(s);
+    s = 'https://' + s;
+  }
+  try { return new URL(s).href; } catch(e){ return ''; }
+}
+
+function brShow(which){
+  $('br-empty').style.display = which==='empty' ? 'flex' : 'none';
+  $('br-block').style.display = which==='block' ? 'flex' : 'none';
+  $('br-frame').style.display = which==='frame' ? 'block' : 'none';
+}
+
+let brBlockTimer = null;
+function brOpen(url){
+  const href = brNormalize(url);
+  if (!href){ toast('Type a site like example.com'); return; }
+  brLoaded = href;
+  $('br-url').value = href.replace(/^https?:\/\//,'').replace(/\/$/,'');
+  const f = $('br-frame');
+  brShow('frame');
+
+  /* If the frame loads, onload fires. If the site refuses embedding, onload
+     usually never fires (or fires on an error page we can't read), so a timeout
+     is the only reliable signal. */
+  clearTimeout(brBlockTimer);
+  let loaded = false;
+  f.onload = () => {
+    loaded = true;
+    /* a cross-origin frame we can't touch is normal and fine; only treat it as
+       blocked if it stayed blank */
+  };
+  f.src = 'about:blank';
+  requestAnimationFrame(() => { f.src = href; });
+
+  brBlockTimer = setTimeout(() => {
+    if (!loaded){
+      try { host = new URL(href).hostname; } catch(e){ host = 'This site'; }
+      $('br-blockhost').textContent = host;
+      brShow('block');
+    }
+  }, 3500);
+}
+
+let host = '';
+$('br-go').onclick = () => brOpen($('br-url').value);
+$('br-url').addEventListener('keydown', e => { if (e.key==='Enter'){ e.preventDefault(); brOpen($('br-url').value); } });
+$('br-open').onclick = () => {
+  const href = brNormalize($('br-url').value || brLoaded);
+  if (href) window.open(href, '_blank', 'noopener');
+};
+
 inviteBanner();
 </script>
 <script>
 (function () {
   var OC = window.OC;
   if (OC.mode === 'app') return;
-
   var veilBmk = document.getElementById('veilbmk');
   var veilOpen = document.getElementById('veilopen');
-
   function unlockApp(){
     document.documentElement.classList.remove('oc-lock');
-    veilBmk.classList.remove('on');
-    veilOpen.classList.remove('on');
+    veilBmk.classList.remove('on'); veilOpen.classList.remove('on');
   }
-
   function savedMask(){
     var m = null;
     try { m = JSON.parse(localStorage.getItem('oc.mask') || 'null'); } catch (e) {}
     if (!m || !m.title) m = { title:'OpenCase', icon:'' };
     return m;
   }
-
   function frameDoc(src, real, mark){
     var m = savedMask();
     return '<!doctype html><html><head><meta charset="utf-8">' +
       '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">' +
-      '<title>' + m.title.replace(/[<>&"]/g, '') + '</title>' +
+      '<title>' + m.title.replace(/[<>&"]/g,'') + '</title>' +
       (m.icon ? '<link rel="icon" href="' + m.icon + '">' : '') +
       '<style>' +
       'html,body{margin:0;height:100%;background:#fff;overflow:hidden;' +
@@ -2637,8 +2732,7 @@ inviteBanner();
       '#mkfall{font-weight:800;font-size:17px;letter-spacing:-.02em;display:none}' +
       '#mkfall i{font-style:normal;color:#FF4B3E}' +
       '#fix{font:inherit;font-size:12.5px;font-weight:700;border:0;cursor:pointer;' +
-      'background:#FF4B3E;color:#fff;border-radius:10px;padding:9px 13px;white-space:nowrap;' +
-      'box-shadow:0 3px 0 #D22F24}' +
+      'background:#FF4B3E;color:#fff;border-radius:10px;padding:9px 13px;white-space:nowrap;box-shadow:0 3px 0 #D22F24}' +
       '#fix:active{transform:translateY(3px);box-shadow:none}' +
       '#rf{font:inherit;font-size:17px;line-height:1;border:0;cursor:pointer;background:#F5F6F8;' +
       'color:#16181D;border-radius:10px;width:36px;height:34px}' +
@@ -2661,63 +2755,42 @@ inviteBanner();
       'document.addEventListener("keydown",function(e){' +
       'if(e.key==="F5"||((e.ctrlKey||e.metaKey)&&(e.key==="r"||e.key==="R"))){' +
       'e.preventDefault();try{F.contentWindow.location.reload()}catch(err){F.src=F.src}}});' +
-      '</scr' + 'ipt>' +
-      '</body></html>';
+      '</scr' + 'ipt></body></html>';
   }
-
   function launch(){
     var hash = location.hash;
     var src = OC.real + (hash ? hash + '&raw=1' : '#raw=1');
     var w = null;
     try { w = window.open('about:blank', '_blank'); } catch (e) {}
     if (!w || w.closed || typeof w.document === 'undefined'){ unlockApp(); return false; }
-    try {
-      w.document.open();
-      w.document.write(frameDoc(src, OC.real, OC.wordmark));
-      w.document.close();
-    } catch (e) {
-      try { w.close(); } catch (e2) {}
-      unlockApp(); return false;
-    }
+    try { w.document.open(); w.document.write(frameDoc(src, OC.real, OC.wordmark)); w.document.close(); }
+    catch (e) { try { w.close(); } catch (e2) {} unlockApp(); return false; }
     document.getElementById('opennote').textContent = 'Opened in a new tab. You can close this one.';
     return true;
   }
-
   if (OC.mode === 'bmk'){
     try { if (localStorage.getItem('Bookmarked') === null) localStorage.setItem('Bookmarked','0'); } catch(e){}
     veilBmk.classList.add('on');
-
     var ua = navigator.userAgent;
-    if (/Mac|iPhone|iPad/.test(navigator.platform || ua)){
-      document.getElementById('keys').innerHTML = '<kbd>\u2318</kbd> + <kbd>D</kbd>';
-    }
+    if (/Mac|iPhone|iPad/.test(navigator.platform || ua)) document.getElementById('keys').innerHTML = '<kbd>\u2318</kbd> + <kbd>D</kbd>';
     if (/Android|iPhone|iPad|iPod/.test(ua)){
       document.getElementById('keys').style.display = 'none';
       document.getElementById('bmktext').textContent =
-        "Save this page first. Use your browser's share menu \u2014 Add Bookmark, or Add to Home Screen. " +
-        "Once you go in, the address bar stops showing where you are.";
+        "Save this page first. Use your browser's share menu — Add Bookmark, or Add to Home Screen. Once you go in, the address bar stops showing where you are.";
     }
-
     document.addEventListener('keydown', function (e) {
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D')){
-        try { localStorage.setItem('Bookmarked','1'); } catch(err){}
-      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D')){ try { localStorage.setItem('Bookmarked','1'); } catch(err){} }
     });
-
     document.getElementById('bmkdone').onclick = function () {
       try { localStorage.setItem('Bookmarked','1'); } catch(e){}
-      veilBmk.classList.remove('on');
-      veilOpen.classList.add('on');
-      launch();
+      veilBmk.classList.remove('on'); veilOpen.classList.add('on'); launch();
     };
     document.getElementById('bmkcopy').onclick = function () {
-      var btn = this;
-      navigator.clipboard.writeText(OC.real).then(function(){ btn.textContent = 'Copied'; },
-        function(){ prompt('Copy this:', OC.real); });
+      var b = this;
+      navigator.clipboard.writeText(OC.real).then(function(){ b.textContent='Copied'; }, function(){ prompt('Copy this:', OC.real); });
     };
     return;
   }
-
   veilOpen.classList.add('on');
   document.getElementById('golaunch').onclick = launch;
   document.getElementById('goplain').onclick = unlockApp;
